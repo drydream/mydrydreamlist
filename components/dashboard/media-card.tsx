@@ -6,14 +6,25 @@ import { updateProgress, deleteItem } from '@/lib/actions/items'
 import { EditItemModal } from './edit-item-modal'
 
 export interface Item {
-  id:        string
-  title:     string
-  image_url: string | null
-  url:       string | null
-  type:      string
-  status:    string
-  progress:  number
-  total:     number | null
+  id:         string
+  title:      string
+  image_url:  string | null
+  url:        string | null
+  type:       string
+  status:     string
+  progress:   number
+  total:      number | null
+  updated_at: string | null
+}
+
+function formatDate(iso: string | null): string | null {
+  if (!iso) return null
+  const d = new Date(iso)
+  const diffDays = Math.floor((Date.now() - d.getTime()) / 86400000)
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return `${diffDays}d ago`
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
 const TYPE_COLOR: Record<string, string> = {
@@ -52,6 +63,7 @@ export function MediaCard({ item }: { item: Item }) {
   )
 
   const atMax = item.total !== null && optimisticProgress >= item.total
+  const atMin = optimisticProgress <= 0
   const dotColor = TYPE_COLOR[item.type] ?? TYPE_COLOR.other
 
   function handleIncrement() {
@@ -59,6 +71,14 @@ export function MediaCard({ item }: { item: Item }) {
     startTransition(async () => {
       addOptimistic(1)
       await updateProgress(item.id, item.progress + 1)
+    })
+  }
+
+  function handleDecrement() {
+    if (atMin) return
+    startTransition(async () => {
+      addOptimistic(-1)
+      await updateProgress(item.id, item.progress - 1)
     })
   }
 
@@ -156,6 +176,14 @@ export function MediaCard({ item }: { item: Item }) {
               <span className="text-[11px] text-zinc-400 tabular-nums">
                 {optimisticProgress}{item.total ? `/${item.total}` : ''}
               </span>
+              {!atMin && (
+                <button
+                  onClick={handleDecrement}
+                  className="h-5 px-1.5 text-[10px] rounded border border-zinc-700 hover:bg-zinc-600 hover:border-zinc-600 text-zinc-400 hover:text-white transition-colors"
+                >
+                  -1
+                </button>
+              )}
               {!atMax && (
                 <button
                   onClick={handleIncrement}
@@ -166,6 +194,12 @@ export function MediaCard({ item }: { item: Item }) {
               )}
             </div>
           </div>
+
+          {formatDate(item.updated_at) && (
+            <p className="text-[9px] text-zinc-600 leading-none">
+              {formatDate(item.updated_at)}
+            </p>
+          )}
         </div>
       </div>
 

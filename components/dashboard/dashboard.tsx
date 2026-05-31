@@ -13,7 +13,7 @@ export async function Dashboard() {
 
   const { data: items, error } = await supabase
     .from('items')
-    .select('id, title, image_url, url, type, status, progress, total')
+    .select('id, title, image_url, url, type, status, progress, total, updated_at')
     .order('updated_at', { ascending: false })
     .returns<Item[]>()
 
