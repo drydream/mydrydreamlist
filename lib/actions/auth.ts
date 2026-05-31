@@ -12,7 +12,7 @@ export async function verifyPassword(password: string) {
   const cookieStore = await cookies()
   cookieStore.set('session', '1', {
     httpOnly: true,
-    sameSite: 'none',
+    sameSite: 'lax',
     secure: true,
     path: '/',
     maxAge: 60 * 60 * 24 * 30,
