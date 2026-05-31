@@ -25,7 +25,7 @@ export async function addItem(data: {
     progress:  0,
   })
   if (error) throw new Error(error.message)
-  revalidatePath('/')
+  revalidatePath('/home')
 }
 
 export async function updateItem(id: string, data: {
@@ -43,7 +43,7 @@ export async function updateItem(id: string, data: {
     .update({ ...data, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw new Error(error.message)
-  revalidatePath('/')
+  revalidatePath('/home')
 }
 
 export async function updateProgress(id: string, progress: number) {
@@ -53,12 +53,12 @@ export async function updateProgress(id: string, progress: number) {
     .update({ progress, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw new Error(error.message)
-  revalidatePath('/')
+  revalidatePath('/home')
 }
 
 export async function deleteItem(id: string) {
   const supabase = createServiceClient()
   const { error } = await supabase.from('items').delete().eq('id', id)
   if (error) throw new Error(error.message)
-  revalidatePath('/')
+  revalidatePath('/home')
 }
