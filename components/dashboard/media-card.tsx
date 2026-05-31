@@ -17,20 +17,21 @@ export interface Item {
   updated_at: string | null
 }
 
-function formatDate(iso: string | null): string | null {
+function formatDate(iso: string | null): { absolute: string; relative: string | null } | null {
   if (!iso) return null
   const d = new Date(iso)
   const now = new Date()
   const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000)
-  const abs = d.toLocaleDateString('en-US', {
+  const absolute = d.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
   })
-  if (diffDays <= 0) return `Today • ${abs}`
-  if (diffDays === 1) return `Yesterday • ${abs}`
-  if (diffDays < 7) return `${diffDays}d ago • ${abs}`
-  return abs
+  let relative: string | null = null
+  if (diffDays <= 0)      relative = 'Today'
+  else if (diffDays === 1) relative = 'Yesterday'
+  else if (diffDays < 7)  relative = `${diffDays}d ago`
+  return { absolute, relative }
 }
 
 const TYPE_COLOR: Record<string, string> = {
@@ -94,9 +95,11 @@ export function MediaCard({ item }: { item: Item }) {
     })
   }
 
+  const date = formatDate(item.updated_at)
+
   return (
     <>
-      <div className="group flex flex-col rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition-all hover:shadow-lg hover:shadow-black/40">
+      <div className="group flex flex-col rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all duration-200 hover:shadow-xl hover:shadow-black/50">
         {/* Poster */}
         <div className="relative aspect-[2/3] bg-zinc-800 overflow-hidden">
           {item.image_url ? (
@@ -112,11 +115,14 @@ export function MediaCard({ item }: { item: Item }) {
             </div>
           )}
 
+          {/* Bottom gradient */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+
           {/* Type dot - top left */}
-          <div className={`absolute top-2 left-2 w-2 h-2 rounded-full ${dotColor} ring-2 ring-zinc-900`} />
+          <div className={`absolute top-2 left-2 w-2 h-2 rounded-full ${dotColor} ring-2 ring-zinc-900/80`} />
 
           {/* Action buttons - top right, appear on hover */}
-          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
             <button
               onClick={() => setEditing(true)}
               className="h-6 w-6 rounded-md bg-black/70 hover:bg-black/90 flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
@@ -168,8 +174,8 @@ export function MediaCard({ item }: { item: Item }) {
         </div>
 
         {/* Info bar */}
-        <div className="px-2.5 py-2 flex flex-col gap-1">
-          <p className="text-xs font-semibold text-zinc-100 line-clamp-2 leading-tight">
+        <div className="px-3 py-2.5 flex flex-col gap-2">
+          <p className="text-xs font-semibold text-zinc-100 line-clamp-2 leading-snug">
             {item.title}
           </p>
 
@@ -179,21 +185,21 @@ export function MediaCard({ item }: { item: Item }) {
             </span>
 
             <div className="flex items-center gap-1">
-              <span className="text-[11px] text-zinc-400 tabular-nums">
+              <span className="text-[11px] text-zinc-400 tabular-nums font-medium">
                 {optimisticProgress}{item.total ? `/${item.total}` : ''}
               </span>
               {!atMin && (
                 <button
                   onClick={handleDecrement}
-                  className="h-5 px-1.5 text-[10px] rounded border border-zinc-700 hover:bg-zinc-600 hover:border-zinc-600 text-zinc-400 hover:text-white transition-colors"
+                  className="h-5 px-1.5 text-[10px] rounded-md border border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 text-zinc-500 hover:text-zinc-200 transition-colors"
                 >
-                  -1
+                  −1
                 </button>
               )}
               {!atMax && (
                 <button
                   onClick={handleIncrement}
-                  className="h-5 px-1.5 text-[10px] rounded border border-zinc-700 hover:bg-violet-600 hover:border-violet-600 text-zinc-400 hover:text-white transition-colors"
+                  className="h-5 px-1.5 text-[10px] rounded-md border border-zinc-700 hover:bg-violet-600 hover:border-violet-600 text-zinc-500 hover:text-white transition-colors"
                 >
                   +1
                 </button>
@@ -201,10 +207,13 @@ export function MediaCard({ item }: { item: Item }) {
             </div>
           </div>
 
-          {formatDate(item.updated_at) && (
-            <p className="text-[9px] text-zinc-600 leading-none">
-              {formatDate(item.updated_at)}
-            </p>
+          {date && (
+            <div className="pt-1.5 border-t border-zinc-800 flex flex-col gap-0.5">
+              <span className="text-[11px] text-zinc-300 font-medium leading-none">{date.absolute}</span>
+              {date.relative && (
+                <span className="text-[9px] text-zinc-600 leading-none">{date.relative}</span>
+              )}
+            </div>
           )}
         </div>
       </div>
