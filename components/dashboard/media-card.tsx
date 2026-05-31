@@ -20,11 +20,17 @@ export interface Item {
 function formatDate(iso: string | null): string | null {
   if (!iso) return null
   const d = new Date(iso)
-  const diffDays = Math.floor((Date.now() - d.getTime()) / 86400000)
-  if (diffDays <= 0) return 'Today'
-  if (diffDays === 1) return 'Yesterday'
-  if (diffDays < 7) return `${diffDays}d ago`
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  const now = new Date()
+  const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000)
+  const abs = d.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+  })
+  if (diffDays <= 0) return `Today • ${abs}`
+  if (diffDays === 1) return `Yesterday • ${abs}`
+  if (diffDays < 7) return `${diffDays}d ago • ${abs}`
+  return abs
 }
 
 const TYPE_COLOR: Record<string, string> = {
