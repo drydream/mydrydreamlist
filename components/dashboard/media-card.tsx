@@ -1,0 +1,175 @@
+'use client'
+
+import { useState, useTransition, useOptimistic } from 'react'
+import { Pencil, Trash2, ExternalLink, Check, X } from 'lucide-react'
+import { updateProgress, deleteItem } from '@/lib/actions/items'
+import { EditItemModal } from './edit-item-modal'
+
+export interface Item {
+  id:        string
+  title:     string
+  image_url: string | null
+  url:       string | null
+  type:      string
+  status:    string
+  progress:  number
+  total:     number | null
+}
+
+const TYPE_COLOR: Record<string, string> = {
+  anime: 'bg-violet-600',
+  manga: 'bg-emerald-600',
+  movie: 'bg-blue-600',
+  other: 'bg-zinc-600',
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  watching:      'Watching',
+  reading:       'Reading',
+  completed:     'Completed',
+  on_hold:       'On Hold',
+  dropped:       'Dropped',
+  plan_to_watch: 'Planning',
+}
+
+const STATUS_COLOR: Record<string, string> = {
+  watching:      'text-violet-400',
+  reading:       'text-emerald-400',
+  completed:     'text-green-400',
+  on_hold:       'text-yellow-400',
+  dropped:       'text-red-400',
+  plan_to_watch: 'text-zinc-500',
+}
+
+export function MediaCard({ item }: { item: Item }) {
+  const [editing,    setEditing]    = useState(false)
+  const [confirming, setConfirming] = useState(false)
+  const [, startTransition] = useTransition()
+
+  const [optimisticProgress, addOptimistic] = useOptimistic(
+    item.progress,
+    (prev, delta: number) => prev + delta
+  )
+
+  const atMax = item.total !== null && optimisticProgress >= item.total
+  const dotColor = TYPE_COLOR[item.type] ?? TYPE_COLOR.other
+
+  function handleIncrement() {
+    if (atMax) return
+    startTransition(async () => {
+      addOptimistic(1)
+      await updateProgress(item.id, item.progress + 1)
+    })
+  }
+
+  function handleDelete() {
+    startTransition(async () => {
+      await deleteItem(item.id)
+    })
+  }
+
+  return (
+    <>
+      <div className="group flex flex-col rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition-all hover:shadow-lg hover:shadow-black/40">
+        {/* Poster */}
+        <div className="relative aspect-[2/3] bg-zinc-800 overflow-hidden">
+          {item.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={item.image_url}
+              alt={item.title}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center p-3">
+              <span className="text-zinc-600 text-xs text-center leading-tight">{item.title}</span>
+            </div>
+          )}
+
+          {/* Type dot - top left */}
+          <div className={`absolute top-2 left-2 w-2 h-2 rounded-full ${dotColor} ring-2 ring-zinc-900`} />
+
+          {/* Action buttons - top right, appear on hover */}
+          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => setEditing(true)}
+              className="h-6 w-6 rounded-md bg-black/70 hover:bg-black/90 flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
+              title="Edit"
+            >
+              <Pencil className="h-3 w-3" />
+            </button>
+
+            {confirming ? (
+              <>
+                <button
+                  onClick={handleDelete}
+                  className="h-6 w-6 rounded-md bg-red-600 hover:bg-red-500 flex items-center justify-center text-white transition-colors"
+                  title="Confirm delete"
+                >
+                  <Check className="h-3 w-3" />
+                </button>
+                <button
+                  onClick={() => setConfirming(false)}
+                  className="h-6 w-6 rounded-md bg-black/70 hover:bg-black/90 flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
+                  title="Cancel"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setConfirming(true)}
+                className="h-6 w-6 rounded-md bg-black/70 hover:bg-red-600/80 flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
+                title="Delete"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+
+          {/* External link - bottom right, hover */}
+          {item.url && (
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-2 right-2 h-6 w-6 rounded-md bg-black/70 hover:bg-black/90 flex items-center justify-center text-zinc-400 hover:text-white opacity-0 group-hover:opacity-100 transition-all"
+              title="Open link"
+            >
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+
+        {/* Info bar */}
+        <div className="px-2.5 py-2 flex flex-col gap-1">
+          <p className="text-xs font-semibold text-zinc-100 line-clamp-2 leading-tight">
+            {item.title}
+          </p>
+
+          <div className="flex items-center justify-between gap-1">
+            <span className={`text-[10px] font-medium ${STATUS_COLOR[item.status] ?? 'text-zinc-500'}`}>
+              {STATUS_LABEL[item.status] ?? item.status}
+            </span>
+
+            <div className="flex items-center gap-1">
+              <span className="text-[11px] text-zinc-400 tabular-nums">
+                {optimisticProgress}{item.total ? `/${item.total}` : ''}
+              </span>
+              {!atMax && (
+                <button
+                  onClick={handleIncrement}
+                  className="h-5 px-1.5 text-[10px] rounded border border-zinc-700 hover:bg-violet-600 hover:border-violet-600 text-zinc-400 hover:text-white transition-colors"
+                >
+                  +1
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {editing && <EditItemModal item={item} onClose={() => setEditing(false)} />}
+    </>
+  )
+}
