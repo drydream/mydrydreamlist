@@ -53,7 +53,9 @@ export async function updateProgress(id: string, progress: number) {
     .update({ progress, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) throw new Error(error.message)
-  revalidatePath('/home')
+  // No revalidatePath: useOptimistic handles the UI update client-side.
+  // Revalidating triggers an RSC re-fetch that iOS Safari ITP blocks (strips
+  // the cross-site cookie) causing redirect to login inside the iframe.
 }
 
 export async function deleteItem(id: string) {
