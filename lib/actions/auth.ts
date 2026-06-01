@@ -15,7 +15,7 @@ export async function verifyPassword(password: string) {
     sameSite: 'none',
     secure: true,
     path: '/',
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: 60 * 40,
   })
   redirect('/home')
 }
