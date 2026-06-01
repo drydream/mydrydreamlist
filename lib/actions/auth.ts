@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { SESSION_COOKIE } from '@/lib/session'
 
 const PASSWORD = 'Iydgtvot2'
 
@@ -10,12 +11,6 @@ export async function verifyPassword(password: string) {
     return { error: 'Wrong password' }
   }
   const cookieStore = await cookies()
-  cookieStore.set('session', '1', {
-    httpOnly: true,
-    sameSite: 'none',
-    secure: true,
-    path: '/',
-    maxAge: 60 * 40,
-  })
+  cookieStore.set('session', '1', SESSION_COOKIE)
   redirect('/home')
 }
