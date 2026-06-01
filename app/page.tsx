@@ -1,19 +1,26 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { verifyPassword } from '@/lib/actions/auth'
 
 export default function LandingPage() {
-  const [password, setPassword]   = useState('')
-  const [error,    setError]      = useState('')
-  const [isPending, startTransition] = useTransition()
+  const [password, setPassword]       = useState('')
+  const [error,    setError]          = useState('')
+  const [isPending, startTransition]  = useTransition()
+  const router                        = useRouter()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     startTransition(async () => {
       const result = await verifyPassword(password)
-      if (result?.error) setError(result.error)
+      if (result?.error) {
+        setError(result.error)
+      } else {
+        localStorage.setItem('session', String(Date.now()))
+        router.push('/home')
+      }
     })
   }
 

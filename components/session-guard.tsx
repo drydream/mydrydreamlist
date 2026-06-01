@@ -2,30 +2,32 @@
 
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { logout } from '@/lib/actions/auth'
 import { IDLE_TIMEOUT_MS } from '@/lib/session'
 
-const LS_KEY = 'lastActive'
+// The 'session' key stores the timestamp of last activity.
+// Missing or older than IDLE_TIMEOUT_MS → not logged in.
+const LS_KEY = 'session'
 
 export function SessionGuard() {
-  const router = useRouter()
+  const router       = useRouter()
   const lastWriteRef = useRef(0)
 
   useEffect(() => {
-    // Check if already idle-expired before doing anything
-    const lastActive = localStorage.getItem(LS_KEY)
-    if (lastActive && Date.now() - Number(lastActive) > IDLE_TIMEOUT_MS) {
+    const stored = localStorage.getItem(LS_KEY)
+
+    // No session or idle-expired → go to login
+    if (!stored || Date.now() - Number(stored) > IDLE_TIMEOUT_MS) {
       localStorage.removeItem(LS_KEY)
-      logout().then(() => router.push('/'))
+      router.push('/')
       return
     }
 
-    // Stamp activity now
+    // Stamp activity on mount
     const now = Date.now()
     localStorage.setItem(LS_KEY, String(now))
     lastWriteRef.current = now
 
-    // Update lastActive on any user interaction (throttled to once/min)
+    // Update timestamp on any user interaction (throttled to once/min)
     function touch() {
       const t = Date.now()
       if (t - lastWriteRef.current > 60_000) {
@@ -34,23 +36,23 @@ export function SessionGuard() {
       }
     }
 
-    window.addEventListener('click', touch, { passive: true })
-    window.addEventListener('keydown', touch, { passive: true })
+    window.addEventListener('click',      touch, { passive: true })
+    window.addEventListener('keydown',    touch, { passive: true })
     window.addEventListener('touchstart', touch, { passive: true })
 
-    // Periodic idle check — catches the case where the app is open but inactive
+    // Check every minute — catches idle while the app stays open
     const checkInterval = setInterval(() => {
-      const last = localStorage.getItem(LS_KEY)
-      if (last && Date.now() - Number(last) > IDLE_TIMEOUT_MS) {
+      const s = localStorage.getItem(LS_KEY)
+      if (!s || Date.now() - Number(s) > IDLE_TIMEOUT_MS) {
         localStorage.removeItem(LS_KEY)
-        logout().then(() => router.push('/'))
+        router.push('/')
       }
     }, 60_000)
 
     return () => {
       clearInterval(checkInterval)
-      window.removeEventListener('click', touch)
-      window.removeEventListener('keydown', touch)
+      window.removeEventListener('click',      touch)
+      window.removeEventListener('keydown',    touch)
       window.removeEventListener('touchstart', touch)
     }
   }, [router])
