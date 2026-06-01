@@ -64,8 +64,9 @@ export function MediaCard({ item }: { item: Item }) {
   const [confirming, setConfirming] = useState(false)
   const [, startTransition] = useTransition()
 
+  const [committedProgress, setCommittedProgress] = useState(item.progress)
   const [optimisticProgress, addOptimistic] = useOptimistic(
-    item.progress,
+    committedProgress,
     (prev, delta: number) => prev + delta
   )
 
@@ -77,7 +78,8 @@ export function MediaCard({ item }: { item: Item }) {
     if (atMax) return
     startTransition(async () => {
       addOptimistic(1)
-      await updateProgress(item.id, item.progress + 1)
+      await updateProgress(item.id, committedProgress + 1)
+      setCommittedProgress(p => p + 1)
     })
   }
 
@@ -85,7 +87,8 @@ export function MediaCard({ item }: { item: Item }) {
     if (atMin) return
     startTransition(async () => {
       addOptimistic(-1)
-      await updateProgress(item.id, item.progress - 1)
+      await updateProgress(item.id, committedProgress - 1)
+      setCommittedProgress(p => p - 1)
     })
   }
 
