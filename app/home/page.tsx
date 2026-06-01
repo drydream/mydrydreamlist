@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { AddItemForm } from '@/components/add-form/add-item-form'
 import { Dashboard } from '@/components/dashboard/dashboard'
@@ -8,8 +8,8 @@ export default async function Home({
 }: {
   searchParams: Promise<Record<string, string>>
 }) {
-  const session = await auth()
-  if (!session) redirect('/')
+  const cookieStore = await cookies()
+  if (!cookieStore.get('session')) redirect('/')
   const filters = await searchParams
 
   return (
