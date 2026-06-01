@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { AddItemForm } from '@/components/add-form/add-item-form'
 import { Dashboard } from '@/components/dashboard/dashboard'
+import { SessionGuard } from '@/components/session-guard'
 
 export default async function Home({
   searchParams,
@@ -14,6 +15,7 @@ export default async function Home({
 
   return (
     <main className="min-h-screen bg-zinc-950 px-4 py-8">
+      <SessionGuard />
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-zinc-100">myDryDrEaMlist</h1>

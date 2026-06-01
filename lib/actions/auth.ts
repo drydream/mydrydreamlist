@@ -14,3 +14,8 @@ export async function verifyPassword(password: string) {
   cookieStore.set('session', '1', SESSION_COOKIE)
   redirect('/home')
 }
+
+export async function logout() {
+  const cookieStore = await cookies()
+  cookieStore.delete('session')
+}
