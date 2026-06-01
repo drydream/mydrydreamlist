@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useOptimistic } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { Pencil, Trash2, ExternalLink, Check, X } from 'lucide-react'
 import { updateProgress, deleteItem } from '@/lib/actions/items'
 import { EditItemModal } from './edit-item-modal'
@@ -63,33 +63,28 @@ export function MediaCard({ item }: { item: Item }) {
   const [editing,    setEditing]    = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [, startTransition] = useTransition()
+  const [displayProgress, setDisplayProgress] = useState(item.progress)
 
-  const [committedProgress, setCommittedProgress] = useState(item.progress)
-  const [optimisticProgress, addOptimistic] = useOptimistic(
-    committedProgress,
-    (prev, delta: number) => prev + delta
-  )
+  useEffect(() => {
+    setDisplayProgress(item.progress)
+  }, [item.progress])
 
-  const atMax = item.total !== null && optimisticProgress >= item.total
-  const atMin = optimisticProgress <= 0
+  const atMax = item.total !== null && displayProgress >= item.total
+  const atMin = displayProgress <= 0
   const dotColor = TYPE_COLOR[item.type] ?? TYPE_COLOR.other
 
   function handleIncrement() {
     if (atMax) return
-    startTransition(async () => {
-      addOptimistic(1)
-      await updateProgress(item.id, committedProgress + 1)
-      setCommittedProgress(p => p + 1)
-    })
+    const next = displayProgress + 1
+    setDisplayProgress(next)
+    updateProgress(item.id, next)
   }
 
   function handleDecrement() {
     if (atMin) return
-    startTransition(async () => {
-      addOptimistic(-1)
-      await updateProgress(item.id, committedProgress - 1)
-      setCommittedProgress(p => p - 1)
-    })
+    const next = displayProgress - 1
+    setDisplayProgress(next)
+    updateProgress(item.id, next)
   }
 
   function handleDelete() {
@@ -189,7 +184,7 @@ export function MediaCard({ item }: { item: Item }) {
 
             <div className="flex items-center gap-1">
               <span className="text-[11px] text-zinc-400 tabular-nums font-medium">
-                {optimisticProgress}{item.total ? `/${item.total}` : ''}
+                {displayProgress}{item.total ? `/${item.total}` : ''}
               </span>
               {!atMin && (
                 <button
