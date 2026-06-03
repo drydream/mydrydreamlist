@@ -25,41 +25,30 @@ function formatDate(iso: string | null): { absolute: string; relative: string | 
   const absolute = d.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+    year: 'numeric',
   })
   let relative: string | null = null
-  if (diffDays <= 0)      relative = 'Today'
+  if (diffDays <= 0)       relative = 'Today'
   else if (diffDays === 1) relative = 'Yesterday'
-  else if (diffDays < 7)  relative = `${diffDays}d ago`
+  else if (diffDays < 7)   relative = `${diffDays}d ago`
   return { absolute, relative }
 }
 
-const TYPE_COLOR: Record<string, string> = {
-  anime: 'bg-violet-600',
-  manga: 'bg-emerald-600',
-  movie: 'bg-blue-600',
-  other: 'bg-zinc-600',
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  watching:      'Watching',
-  reading:       'Reading',
-  completed:     'Completed',
-  on_hold:       'On Hold',
-  dropped:       'Dropped',
-  plan_to_watch: 'Planning',
-}
-
-const STATUS_COLOR: Record<string, string> = {
-  watching:      'text-violet-400',
-  reading:       'text-emerald-400',
-  completed:     'text-green-400',
-  on_hold:       'text-yellow-400',
-  dropped:       'text-red-400',
-  plan_to_watch: 'text-zinc-500',
-}
-
-export function MediaCard({ item }: { item: Item }) {
+export function MediaCard({
+  item,
+  dotColor = 'bg-zinc-600',
+  statusLabel,
+  statusText = 'text-zinc-400',
+  types    = [],
+  statuses = [],
+}: {
+  item:         Item
+  dotColor?:    string
+  statusLabel?: string
+  statusText?:  string
+  types?:       { value: string; label: string }[]
+  statuses?:    { value: string; label: string; type_filter?: string[] }[]
+}) {
   const [editing,    setEditing]    = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [, startTransition] = useTransition()
@@ -69,12 +58,9 @@ export function MediaCard({ item }: { item: Item }) {
     setDisplayProgress(item.progress)
   }, [item.progress])
 
-  const atMax = item.total !== null && displayProgress >= item.total
   const atMin = displayProgress <= 0
-  const dotColor = TYPE_COLOR[item.type] ?? TYPE_COLOR.other
 
   function handleIncrement() {
-    if (atMax) return
     const next = displayProgress + 1
     setDisplayProgress(next)
     updateProgress(item.id, next)
@@ -97,50 +83,60 @@ export function MediaCard({ item }: { item: Item }) {
 
   return (
     <>
-      <div className="group flex flex-col rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all duration-200 hover:shadow-xl hover:shadow-black/50">
+      <div className="group flex flex-col rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800/60 hover:border-zinc-600 transition-all duration-300 hover:shadow-2xl hover:shadow-black/60 hover:-translate-y-0.5">
         {/* Poster */}
         <div className="relative aspect-[2/3] bg-zinc-800 overflow-hidden">
           {item.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={item.image_url}
-              alt={item.title}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+            <>
+              {/* Blurred fill */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={item.image_url}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-50 transition-transform duration-500 group-hover:scale-125"
+              />
+              {/* Main image */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={item.image_url}
+                alt={item.title}
+                className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl"
+              />
+            </>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center p-3">
-              <span className="text-zinc-600 text-xs text-center leading-tight">{item.title}</span>
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-end p-3">
+              <span className="text-zinc-400 text-xs font-medium leading-snug line-clamp-3">{item.title}</span>
             </div>
           )}
 
-          {/* Bottom gradient */}
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+          {/* Deep bottom gradient for text overlay */}
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none" />
 
-          {/* Type dot - top left */}
-          <div className={`absolute top-2 left-2 w-2 h-2 rounded-full ${dotColor} ring-2 ring-zinc-900/80`} />
+          {/* Type dot — top left */}
+          <div className={`absolute top-2.5 left-2.5 w-2 h-2 rounded-full ${dotColor} ring-2 ring-black/50 shadow-lg`} />
 
-          {/* Action buttons - top right, appear on hover */}
-          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+          {/* Action buttons — top right on hover */}
+          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <button
               onClick={() => setEditing(true)}
-              className="h-6 w-6 rounded-md bg-black/70 hover:bg-black/90 flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
+              className="h-6 w-6 rounded-lg bg-black/70 hover:bg-black/90 backdrop-blur-sm flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
               title="Edit"
             >
               <Pencil className="h-3 w-3" />
             </button>
-
             {confirming ? (
               <>
                 <button
                   onClick={handleDelete}
-                  className="h-6 w-6 rounded-md bg-red-600 hover:bg-red-500 flex items-center justify-center text-white transition-colors"
+                  className="h-6 w-6 rounded-lg bg-red-600 hover:bg-red-500 flex items-center justify-center text-white transition-colors"
                   title="Confirm delete"
                 >
                   <Check className="h-3 w-3" />
                 </button>
                 <button
                   onClick={() => setConfirming(false)}
-                  className="h-6 w-6 rounded-md bg-black/70 hover:bg-black/90 flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
+                  className="h-6 w-6 rounded-lg bg-black/70 hover:bg-black/90 backdrop-blur-sm flex items-center justify-center text-zinc-300 transition-colors"
                   title="Cancel"
                 >
                   <X className="h-3 w-3" />
@@ -149,7 +145,7 @@ export function MediaCard({ item }: { item: Item }) {
             ) : (
               <button
                 onClick={() => setConfirming(true)}
-                className="h-6 w-6 rounded-md bg-black/70 hover:bg-red-600/80 flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
+                className="h-6 w-6 rounded-lg bg-black/70 hover:bg-red-600/90 backdrop-blur-sm flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
                 title="Delete"
               >
                 <Trash2 className="h-3 w-3" />
@@ -157,13 +153,23 @@ export function MediaCard({ item }: { item: Item }) {
             )}
           </div>
 
-          {/* External link - bottom right, hover */}
+          {/* Title + status — always visible overlay */}
+          <div className="absolute inset-x-0 bottom-0 p-2.5 pointer-events-none">
+            <p className="text-[11px] font-semibold text-white leading-snug line-clamp-2 drop-shadow-lg mb-1">
+              {item.title}
+            </p>
+            <span className={`inline-block text-[9px] font-medium px-1.5 py-0.5 rounded-md bg-black/40 backdrop-blur-sm ${statusText}`}>
+              {statusLabel ?? item.status}
+            </span>
+          </div>
+
+          {/* External link — bottom right on hover */}
           {item.url && (
             <a
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="absolute bottom-2 right-2 h-6 w-6 rounded-md bg-black/70 hover:bg-black/90 flex items-center justify-center text-zinc-400 hover:text-white opacity-0 group-hover:opacity-100 transition-all"
+              className="absolute bottom-2 right-2 h-6 w-6 rounded-lg bg-black/60 hover:bg-black/90 backdrop-blur-sm flex items-center justify-center text-zinc-400 hover:text-white opacity-0 group-hover:opacity-100 transition-all"
               title="Open link"
             >
               <ExternalLink className="h-3 w-3" />
@@ -171,52 +177,47 @@ export function MediaCard({ item }: { item: Item }) {
           )}
         </div>
 
-        {/* Info bar */}
-        <div className="px-3 py-2.5 flex flex-col gap-2">
-          <p className="text-xs font-semibold text-zinc-100 line-clamp-2 leading-snug">
-            {item.title}
-          </p>
-
-          <div className="flex items-center justify-between gap-1">
-            <span className={`text-[10px] font-medium ${STATUS_COLOR[item.status] ?? 'text-zinc-500'}`}>
-              {STATUS_LABEL[item.status] ?? item.status}
+        {/* Bottom bar — progress + date */}
+        <div className="px-2.5 py-2 flex items-center justify-between gap-2 bg-zinc-900">
+          <div className="flex items-center gap-1">
+            {!atMin && (
+              <button
+                onClick={handleDecrement}
+                className="h-5 w-5 text-[10px] rounded-md border border-zinc-700/60 hover:bg-zinc-700 hover:border-zinc-600 text-zinc-500 hover:text-zinc-200 transition-colors flex items-center justify-center"
+              >
+                −
+              </button>
+            )}
+            <span className="text-[11px] text-zinc-300 tabular-nums font-semibold min-w-[1ch] text-center">
+              {displayProgress}
             </span>
-
-            <div className="flex items-center gap-1">
-              <span className="text-[11px] text-zinc-400 tabular-nums font-medium">
-                {displayProgress}{item.total ? `/${item.total}` : ''}
-              </span>
-              {!atMin && (
-                <button
-                  onClick={handleDecrement}
-                  className="h-5 px-1.5 text-[10px] rounded-md border border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 text-zinc-500 hover:text-zinc-200 transition-colors"
-                >
-                  −1
-                </button>
-              )}
-              {!atMax && (
-                <button
-                  onClick={handleIncrement}
-                  className="h-5 px-1.5 text-[10px] rounded-md border border-zinc-700 hover:bg-violet-600 hover:border-violet-600 text-zinc-500 hover:text-white transition-colors"
-                >
-                  +1
-                </button>
-              )}
-            </div>
+            <button
+              onClick={handleIncrement}
+              className="h-5 w-5 text-[10px] rounded-md border border-zinc-700/60 hover:bg-violet-600 hover:border-violet-600 text-zinc-500 hover:text-white transition-colors flex items-center justify-center"
+            >
+              +
+            </button>
           </div>
 
           {date && (
-            <div className="pt-1.5 border-t border-zinc-800 flex flex-col gap-0.5">
-              <span className="text-[11px] text-zinc-300 font-medium leading-none">{date.absolute}</span>
+            <div className="text-right shrink-0">
+              <p className="text-[10px] text-zinc-400 leading-none">{date.absolute}</p>
               {date.relative && (
-                <span className="text-[9px] text-zinc-600 leading-none">{date.relative}</span>
+                <p className="text-[9px] text-zinc-600 leading-none mt-0.5">{date.relative}</p>
               )}
             </div>
           )}
         </div>
       </div>
 
-      {editing && <EditItemModal item={item} onClose={() => setEditing(false)} />}
+      {editing && (
+        <EditItemModal
+          item={item}
+          types={types}
+          statuses={statuses}
+          onClose={() => setEditing(false)}
+        />
+      )}
     </>
   )
 }

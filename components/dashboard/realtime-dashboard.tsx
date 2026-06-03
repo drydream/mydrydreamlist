@@ -4,13 +4,8 @@ import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { MediaCard, type Item } from './media-card'
 import { FilterBar } from './filter-bar'
-
-const GROUPS = [
-  { type: 'anime', label: 'Anime', accent: 'bg-violet-500' },
-  { type: 'manga', label: 'Manga', accent: 'bg-emerald-500' },
-  { type: 'movie', label: 'Movie', accent: 'bg-blue-500' },
-  { type: 'other', label: 'Other', accent: 'bg-zinc-500' },
-]
+import { COLOR_MAP } from '@/lib/colors'
+import type { Category } from '@/lib/actions/categories'
 
 interface Filters {
   type?:   string
@@ -21,9 +16,13 @@ interface Filters {
 export function RealtimeDashboard({
   initialItems,
   filters = {},
+  typeCategories   = [],
+  statusCategories = [],
 }: {
-  initialItems: Item[]
-  filters?: Filters
+  initialItems:      Item[]
+  filters?:          Filters
+  typeCategories?:   Category[]
+  statusCategories?: Category[]
 }) {
   const [items, setItems] = useState(initialItems)
 
@@ -49,12 +48,32 @@ export function RealtimeDashboard({
     return () => { supabase.removeChannel(channel) }
   }, [])
 
+  // Build color lookup maps from categories
+  const typeColorMap: Record<string, string> = Object.fromEntries(
+    typeCategories.map(c => [c.value, COLOR_MAP[c.color]?.dot ?? 'bg-zinc-600'])
+  )
+  const statusMap: Record<string, { label: string; text: string }> = Object.fromEntries(
+    statusCategories.map(c => [c.value, {
+      label: c.label,
+      text:  COLOR_MAP[c.color]?.text ?? 'text-zinc-400',
+    }])
+  )
+
+  // Derive available filter options (only values present in items)
   const availableTypes    = [...new Set(items.map(i => i.type))]
   const availableStatuses = [...new Set(items.map(i => i.status))]
   const availableYears    = [...new Set(
     items.filter(i => i.updated_at).map(i => new Date(i.updated_at!).getFullYear())
   )].sort((a, b) => b - a)
 
+  const typeOptions   = typeCategories
+    .filter(c => availableTypes.includes(c.value))
+    .map(c => ({ value: c.value, label: c.label }))
+  const statusOptions = statusCategories
+    .filter(c => availableStatuses.includes(c.value))
+    .map(c => ({ value: c.value, label: c.label }))
+
+  // Apply URL filters
   let filtered = items
   if (filters.type)   filtered = filtered.filter(i => i.type === filters.type)
   if (filters.status) filtered = filtered.filter(i => i.status === filters.status)
@@ -62,9 +81,25 @@ export function RealtimeDashboard({
     i.updated_at && new Date(i.updated_at).getFullYear() === Number(filters.year)
   )
 
-  const groups = GROUPS
-    .map(g => ({ ...g, items: filtered.filter(i => i.type === g.type) }))
-    .filter(g => g.items.length > 0)
+  // Build groups from categories (dynamic), then catch uncategorized items
+  const knownTypes = new Set(typeCategories.map(c => c.value))
+  const groups = [
+    ...typeCategories
+      .map(c => ({
+        type:   c.value,
+        label:  c.label,
+        accent: COLOR_MAP[c.color]?.accent ?? 'bg-zinc-500',
+        items:  filtered.filter(i => i.type === c.value),
+      }))
+      .filter(g => g.items.length > 0),
+    // Items whose type category was deleted still appear here
+    ...((() => {
+      const orphans = filtered.filter(i => !knownTypes.has(i.type))
+      return orphans.length > 0
+        ? [{ type: '__orphan__', label: 'Other', accent: 'bg-zinc-500', items: orphans }]
+        : []
+    })()),
+  ]
 
   if (items.length === 0) {
     return (
@@ -79,8 +114,8 @@ export function RealtimeDashboard({
     <div className="space-y-8">
       <Suspense>
         <FilterBar
-          availableTypes={availableTypes}
-          availableStatuses={availableStatuses}
+          typeOptions={typeOptions}
+          statusOptions={statusOptions}
           availableYears={availableYears}
         />
       </Suspense>
@@ -100,9 +135,17 @@ export function RealtimeDashboard({
               <span className="text-sm text-zinc-600">{group.items.length}</span>
               <div className="flex-1 h-px bg-zinc-800" />
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {group.items.map(item => (
-                <MediaCard key={item.id} item={item} />
+                <MediaCard
+                  key={item.id}
+                  item={item}
+                  dotColor={typeColorMap[item.type] ?? 'bg-zinc-600'}
+                  statusLabel={statusMap[item.status]?.label}
+                  statusText={statusMap[item.status]?.text}
+                  types={typeCategories.map(c => ({ value: c.value, label: c.label }))}
+                  statuses={statusCategories.map(c => ({ value: c.value, label: c.label, type_filter: c.type_filter }))}
+                />
               ))}
             </div>
           </section>

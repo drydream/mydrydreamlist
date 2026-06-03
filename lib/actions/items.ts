@@ -3,8 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/server'
 
-export type ItemType   = 'anime' | 'manga' | 'movie' | 'other'
-export type ItemStatus = 'watching' | 'reading' | 'completed' | 'on_hold' | 'dropped' | 'plan_to_watch'
+export type ItemType   = string
+export type ItemStatus = string
 
 export async function addItem(data: {
   title: string

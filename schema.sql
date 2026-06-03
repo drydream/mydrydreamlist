@@ -191,3 +191,30 @@ CREATE POLICY "activity_logs_select" ON public.activity_logs
 
 CREATE POLICY "activity_logs_insert" ON public.activity_logs
   FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- 5. CATEGORIES  (dynamic type/status management)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.categories (
+  id         UUID    PRIMARY KEY DEFAULT gen_random_uuid(),
+  kind       TEXT    NOT NULL CHECK (kind IN ('type', 'status')),
+  value      TEXT    NOT NULL,
+  label      TEXT    NOT NULL,
+  color      TEXT    NOT NULL DEFAULT 'zinc',
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (kind, value)
+);
+
+INSERT INTO public.categories (kind, value, label, color, sort_order) VALUES
+  ('type',   'anime',         'Anime',     'violet',  0),
+  ('type',   'manga',         'Manga',     'emerald', 1),
+  ('type',   'movie',         'Movie',     'blue',    2),
+  ('type',   'other',         'Other',     'zinc',    3),
+  ('status', 'watching',      'Watching',  'violet',  0),
+  ('status', 'reading',       'Reading',   'emerald', 1),
+  ('status', 'completed',     'Completed', 'green',   2),
+  ('status', 'on_hold',       'On Hold',   'yellow',  3),
+  ('status', 'dropped',       'Dropped',   'red',     4),
+  ('status', 'plan_to_watch', 'Planning',  'zinc',    5)
+ON CONFLICT (kind, value) DO NOTHING;

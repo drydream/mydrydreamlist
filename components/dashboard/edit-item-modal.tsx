@@ -4,35 +4,29 @@ import { useState, useTransition } from 'react'
 import { X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { updateItem, type ItemType, type ItemStatus } from '@/lib/actions/items'
+import { updateItem } from '@/lib/actions/items'
 import type { Item } from './media-card'
-
-const TYPE_OPTIONS: { value: ItemType; label: string }[] = [
-  { value: 'anime', label: 'Anime' },
-  { value: 'manga', label: 'Manga' },
-  { value: 'movie', label: 'Movie' },
-  { value: 'other', label: 'Other' },
-]
-
-const STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
-  { value: 'watching',      label: 'Watching' },
-  { value: 'reading',       label: 'Reading' },
-  { value: 'completed',     label: 'Completed' },
-  { value: 'plan_to_watch', label: 'Plan to watch' },
-  { value: 'on_hold',       label: 'On hold' },
-  { value: 'dropped',       label: 'Dropped' },
-]
 
 const SELECT_CLASS = 'bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500'
 
-export function EditItemModal({ item, onClose }: { item: Item; onClose: () => void }) {
+export function EditItemModal({
+  item,
+  types    = [],
+  statuses = [],
+  onClose,
+}: {
+  item:      Item
+  types?:    { value: string; label: string }[]
+  statuses?: { value: string; label: string; type_filter?: string[] }[]
+  onClose:   () => void
+}) {
   const [isPending, startTransition] = useTransition()
   const [form, setForm] = useState({
     title:     item.title,
     image_url: item.image_url ?? '',
     url:       item.url       ?? '',
-    type:      item.type      as ItemType,
-    status:    item.status    as ItemStatus,
+    type:      item.type,
+    status:    item.status,
     total:     item.total?.toString()    ?? '',
     progress:  item.progress.toString(),
   })
@@ -40,6 +34,19 @@ export function EditItemModal({ item, onClose }: { item: Item; onClose: () => vo
   function set(key: string, value: string) {
     setForm(f => ({ ...f, [key]: value }))
   }
+
+  function handleTypeChange(newType: string) {
+    const applicable = statuses.filter(s => !s.type_filter?.length || s.type_filter.includes(newType))
+    setForm(f => ({
+      ...f,
+      type:   newType,
+      status: applicable.find(s => s.value === f.status) ? f.status : (applicable[0]?.value ?? f.status),
+    }))
+  }
+
+  const applicableStatuses = statuses.filter(
+    s => !s.type_filter?.length || s.type_filter.includes(form.type)
+  )
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -51,8 +58,7 @@ export function EditItemModal({ item, onClose }: { item: Item; onClose: () => vo
         url:       form.url.trim()       || null,
         type:      form.type,
         status:    form.status,
-        total:     form.total    ? parseInt(form.total)    : null,
-        progress:  form.progress ? parseInt(form.progress) : 0,
+        progress: form.progress ? parseFloat(form.progress) : 0,
       })
       onClose()
     })
@@ -102,42 +108,39 @@ export function EditItemModal({ item, onClose }: { item: Item; onClose: () => vo
         <div className="flex gap-2 flex-wrap">
           <select
             value={form.type}
-            onChange={e => set('type', e.target.value)}
+            onChange={e => handleTypeChange(e.target.value)}
             className={`flex-1 min-w-[100px] ${SELECT_CLASS}`}
           >
-            {TYPE_OPTIONS.map(o => (
+            {types.map(o => (
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
+            {!types.find(o => o.value === form.type) && (
+              <option value={form.type}>{form.type}</option>
+            )}
           </select>
           <select
             value={form.status}
             onChange={e => set('status', e.target.value)}
             className={`flex-1 min-w-[120px] ${SELECT_CLASS}`}
           >
-            {STATUS_OPTIONS.map(o => (
+            {applicableStatuses.map(o => (
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
+            {!applicableStatuses.find(o => o.value === form.status) && (
+              <option value={form.status}>{form.status}</option>
+            )}
           </select>
         </div>
 
-        <div className="flex gap-2">
-          <Input
-            type="number"
-            placeholder="Progress"
-            value={form.progress}
-            onChange={e => set('progress', e.target.value)}
-            min={0}
-            className="flex-1 bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-500"
-          />
-          <Input
-            type="number"
-            placeholder="Total"
-            value={form.total}
-            onChange={e => set('total', e.target.value)}
-            min={0}
-            className="flex-1 bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-500"
-          />
-        </div>
+        <Input
+          type="number"
+          placeholder="Progress"
+          value={form.progress}
+          onChange={e => set('progress', e.target.value)}
+          min={0}
+          step="any"
+          className="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-500"
+        />
 
         <Button
           type="submit"

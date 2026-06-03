@@ -4,41 +4,43 @@ import { useState, useTransition } from 'react'
 import { Plus, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { addItem, type ItemType, type ItemStatus } from '@/lib/actions/items'
-
-const TYPE_OPTIONS: { value: ItemType; label: string }[] = [
-  { value: 'anime', label: 'Anime' },
-  { value: 'manga', label: 'Manga' },
-  { value: 'movie', label: 'Movie' },
-  { value: 'other', label: 'Other' },
-]
-
-const STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
-  { value: 'watching',      label: 'Watching' },
-  { value: 'reading',       label: 'Reading' },
-  { value: 'completed',     label: 'Completed' },
-  { value: 'plan_to_watch', label: 'Plan to watch' },
-  { value: 'on_hold',       label: 'On hold' },
-  { value: 'dropped',       label: 'Dropped' },
-]
+import { addItem } from '@/lib/actions/items'
 
 const SELECT_CLASS = 'bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500'
 
-export function AddItemForm() {
+export function AddItemForm({
+  types    = [],
+  statuses = [],
+}: {
+  types?:    { value: string; label: string }[]
+  statuses?: { value: string; label: string; type_filter?: string[] }[]
+}) {
   const [open, setOpen]              = useState(false)
   const [isPending, startTransition] = useTransition()
   const [form, setForm] = useState({
     title:     '',
     image_url: '',
     url:       '',
-    type:      'anime' as ItemType,
-    status:    'watching' as ItemStatus,
-    total:     '',
+    type:      types[0]?.value    ?? '',
+    status:    statuses[0]?.value ?? '',
   })
 
   function set(key: string, value: string) {
     setForm(f => ({ ...f, [key]: value }))
   }
+
+  function handleTypeChange(newType: string) {
+    const applicable = statuses.filter(s => !s.type_filter?.length || s.type_filter.includes(newType))
+    setForm(f => ({
+      ...f,
+      type:   newType,
+      status: applicable.find(s => s.value === f.status) ? f.status : (applicable[0]?.value ?? f.status),
+    }))
+  }
+
+  const applicableStatuses = statuses.filter(
+    s => !s.type_filter?.length || s.type_filter.includes(form.type)
+  )
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -50,9 +52,8 @@ export function AddItemForm() {
         url:       form.url.trim()       || undefined,
         type:      form.type,
         status:    form.status,
-        total:     form.total ? parseInt(form.total) : undefined,
       })
-      setForm({ title: '', image_url: '', url: '', type: 'anime', status: 'watching', total: '' })
+      setForm(f => ({ ...f, title: '', image_url: '', url: '' }))
       setOpen(false)
     })
   }
@@ -112,10 +113,10 @@ export function AddItemForm() {
             <div className="flex gap-2 flex-wrap">
               <select
                 value={form.type}
-                onChange={e => set('type', e.target.value)}
+                onChange={e => handleTypeChange(e.target.value)}
                 className={`flex-1 min-w-[100px] ${SELECT_CLASS}`}
               >
-                {TYPE_OPTIONS.map(o => (
+                {types.map(o => (
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
@@ -124,18 +125,10 @@ export function AddItemForm() {
                 onChange={e => set('status', e.target.value)}
                 className={`flex-1 min-w-[120px] ${SELECT_CLASS}`}
               >
-                {STATUS_OPTIONS.map(o => (
+                {applicableStatuses.map(o => (
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
-              <Input
-                type="number"
-                placeholder="Total"
-                value={form.total}
-                onChange={e => set('total', e.target.value)}
-                min={0}
-                className="w-24 bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-500"
-              />
             </div>
 
             <Button

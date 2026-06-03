@@ -2,31 +2,15 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 
-const TYPE_OPTIONS = [
-  { value: 'anime', label: 'Anime' },
-  { value: 'manga', label: 'Manga' },
-  { value: 'movie', label: 'Movie' },
-  { value: 'other', label: 'Other' },
-]
-
-const STATUS_OPTIONS = [
-  { value: 'watching',      label: 'Watching' },
-  { value: 'reading',       label: 'Reading' },
-  { value: 'completed',     label: 'Completed' },
-  { value: 'on_hold',       label: 'On Hold' },
-  { value: 'dropped',       label: 'Dropped' },
-  { value: 'plan_to_watch', label: 'Planning' },
-]
-
 interface FilterBarProps {
-  availableTypes:    string[]
-  availableStatuses: string[]
-  availableYears:    number[]
+  typeOptions:    { value: string; label: string }[]
+  statusOptions:  { value: string; label: string }[]
+  availableYears: number[]
 }
 
-export function FilterBar({ availableTypes, availableStatuses, availableYears }: FilterBarProps) {
-  const router      = useRouter()
-  const pathname    = usePathname()
+export function FilterBar({ typeOptions, statusOptions, availableYears }: FilterBarProps) {
+  const router       = useRouter()
+  const pathname     = usePathname()
   const searchParams = useSearchParams()
 
   const activeType   = searchParams.get('type')   ?? ''
@@ -39,9 +23,6 @@ export function FilterBar({ availableTypes, availableStatuses, availableYears }:
     else params.set(key, value)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
-
-  const typeOptions   = TYPE_OPTIONS.filter(o => availableTypes.includes(o.value))
-  const statusOptions = STATUS_OPTIONS.filter(o => availableStatuses.includes(o.value))
 
   if (typeOptions.length <= 1 && statusOptions.length <= 1 && availableYears.length <= 1) return null
 

@@ -1,6 +1,7 @@
 import { createServiceClient } from '@/lib/supabase/server'
 import { type Item } from './media-card'
 import { RealtimeDashboard } from './realtime-dashboard'
+import type { Category } from '@/lib/actions/categories'
 
 interface Filters {
   type?:   string
@@ -8,7 +9,13 @@ interface Filters {
   year?:   string
 }
 
-export async function Dashboard({ filters = {} }: { filters?: Filters }) {
+export async function Dashboard({
+  filters    = {},
+  categories = [],
+}: {
+  filters?:    Filters
+  categories?: Category[]
+}) {
   const supabase = createServiceClient()
 
   const { data: items, error } = await supabase
@@ -25,5 +32,15 @@ export async function Dashboard({ filters = {} }: { filters?: Filters }) {
     )
   }
 
-  return <RealtimeDashboard initialItems={items ?? []} filters={filters} />
+  const typeCategories   = categories.filter(c => c.kind === 'type')
+  const statusCategories = categories.filter(c => c.kind === 'status')
+
+  return (
+    <RealtimeDashboard
+      initialItems={items ?? []}
+      filters={filters}
+      typeCategories={typeCategories}
+      statusCategories={statusCategories}
+    />
+  )
 }
