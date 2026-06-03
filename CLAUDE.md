@@ -1,5 +1,8 @@
 # myDryDrEaMlist — Claude Context
 
+## Git Workflow
+Always commit and push to a **new branch** (e.g. `feat/admin-categories`, `fix/image-fit`). Never push directly to `main`. Only merge to main when user explicitly says "merge to main".
+
 ## Stack
 - **Framework:** Next.js 16 App Router, React 19, TypeScript
 - **Styling:** Tailwind CSS v4, shadcn/base-ui components
