@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react'
 import { Pencil, Trash2, ExternalLink, Check, X } from 'lucide-react'
+import { AnimatePresence } from 'motion/react'
 import { updateProgress, deleteItem } from '@/lib/actions/items'
 import { EditItemModal } from './edit-item-modal'
 
@@ -53,6 +54,7 @@ export function MediaCard({
   const [confirming, setConfirming] = useState(false)
   const [, startTransition] = useTransition()
   const [displayProgress, setDisplayProgress] = useState(item.progress)
+  const [bumpKey, setBumpKey] = useState(0)
 
   useEffect(() => {
     setDisplayProgress(item.progress)
@@ -63,6 +65,7 @@ export function MediaCard({
   function handleIncrement() {
     const next = displayProgress + 1
     setDisplayProgress(next)
+    setBumpKey(k => k + 1)
     updateProgress(item.id, next)
   }
 
@@ -70,6 +73,7 @@ export function MediaCard({
     if (atMin) return
     const next = displayProgress - 1
     setDisplayProgress(next)
+    setBumpKey(k => k + 1)
     updateProgress(item.id, next)
   }
 
@@ -183,20 +187,23 @@ export function MediaCard({
             <button
               onClick={handleDecrement}
               disabled={atMin}
-              className={`h-7 w-7 text-xs rounded-md border transition-colors flex items-center justify-center ${
+              className={`h-7 w-7 text-xs rounded-md border flex items-center justify-center ${
                 atMin
                   ? 'border-zinc-700/30 text-zinc-700 cursor-not-allowed'
-                  : 'border-zinc-700/60 hover:bg-zinc-700 hover:border-zinc-600 text-zinc-500 hover:text-zinc-200'
+                  : 'border-zinc-700/60 hover:bg-zinc-700 hover:border-zinc-600 text-zinc-500 hover:text-zinc-200 active:scale-[0.88] transition'
               }`}
             >
               −
             </button>
-            <span className="text-[11px] text-zinc-300 tabular-nums font-semibold min-w-[1ch] text-center">
+            <span
+              key={bumpKey}
+              className={`text-[11px] text-zinc-300 tabular-nums font-semibold min-w-[1ch] text-center inline-block${bumpKey > 0 ? ' [animation:count-pop_160ms_cubic-bezier(0.22,1,0.36,1)_both]' : ''}`}
+            >
               {displayProgress}
             </span>
             <button
               onClick={handleIncrement}
-              className="h-7 w-7 text-xs rounded-md border border-zinc-700/60 hover:bg-violet-600 hover:border-violet-600 text-zinc-500 hover:text-white transition-colors flex items-center justify-center"
+              className="h-7 w-7 text-xs rounded-md border border-zinc-700/60 hover:bg-violet-600 hover:border-violet-600 text-zinc-500 hover:text-white active:scale-[0.88] transition flex items-center justify-center"
             >
               +
             </button>
@@ -213,14 +220,16 @@ export function MediaCard({
         </div>
       </div>
 
-      {editing && (
-        <EditItemModal
-          item={item}
-          types={types}
-          statuses={statuses}
-          onClose={() => setEditing(false)}
-        />
-      )}
+      <AnimatePresence>
+        {editing && (
+          <EditItemModal
+            item={item}
+            types={types}
+            statuses={statuses}
+            onClose={() => setEditing(false)}
+          />
+        )}
+      </AnimatePresence>
     </>
   )
 }

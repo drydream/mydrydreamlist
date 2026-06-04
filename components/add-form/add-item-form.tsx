@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react'
 import { Plus, X } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { addItem } from '@/lib/actions/items'
@@ -75,15 +76,26 @@ export function AddItemForm({
         <Plus className="h-4 w-4 mr-1" /> Add
       </Button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+          >
           <div
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <form
+          <motion.form
             onSubmit={handleSubmit}
             className="relative w-full max-w-md bg-zinc-900 border border-zinc-700 rounded-xl p-5 space-y-3 shadow-2xl"
+            initial={{ opacity: 0, y: 12, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.97 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-zinc-200">Add entry</span>
@@ -145,9 +157,10 @@ export function AddItemForm({
             >
               {isPending ? 'Adding…' : 'Add to list'}
             </Button>
-          </form>
-        </div>
-      )}
+          </motion.form>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
