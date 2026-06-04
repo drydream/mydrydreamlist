@@ -26,7 +26,7 @@ export default async function Home({
           <div className="flex items-center gap-3">
             <Link
               href="/admin"
-              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
             >
               Admin
             </Link>

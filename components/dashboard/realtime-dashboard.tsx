@@ -11,6 +11,7 @@ interface Filters {
   type?:   string
   status?: string
   year?:   string
+  search?: string
 }
 
 export function RealtimeDashboard({
@@ -25,6 +26,7 @@ export function RealtimeDashboard({
   statusCategories?: Category[]
 }) {
   const [items, setItems] = useState(initialItems)
+  const [realtimeLost, setRealtimeLost] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -43,7 +45,10 @@ export function RealtimeDashboard({
           )
         }
       )
-      .subscribe()
+      .subscribe((status: string) => {
+        if (status === 'SUBSCRIBED')                                              setRealtimeLost(false)
+        if (status === 'CHANNEL_ERROR' || status === 'CLOSED' || status === 'TIMED_OUT') setRealtimeLost(true)
+      })
 
     return () => { supabase.removeChannel(channel) }
   }, [])
@@ -75,6 +80,10 @@ export function RealtimeDashboard({
 
   // Apply URL filters
   let filtered = items
+  if (filters.search) {
+    const q = filters.search.toLowerCase()
+    filtered = filtered.filter(i => i.title.toLowerCase().includes(q))
+  }
   if (filters.type)   filtered = filtered.filter(i => i.type === filters.type)
   if (filters.status) filtered = filtered.filter(i => i.status === filters.status)
   if (filters.year)   filtered = filtered.filter(i =>
@@ -112,6 +121,12 @@ export function RealtimeDashboard({
 
   return (
     <div className="space-y-8">
+      {realtimeLost && (
+        <div className="flex items-center gap-1.5 text-xs text-amber-500/70">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500/70 animate-pulse shrink-0" />
+          Live updates paused — refresh to reconnect.
+        </div>
+      )}
       <Suspense>
         <FilterBar
           typeOptions={typeOptions}
@@ -122,7 +137,9 @@ export function RealtimeDashboard({
 
       {groups.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <p className="text-zinc-400 text-base">No items match this filter.</p>
+          <p className="text-zinc-400 text-base">
+            {filters.search ? `No titles match "${filters.search}".` : 'No items match this filter.'}
+          </p>
         </div>
       )}
 

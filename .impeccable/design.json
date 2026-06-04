@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-04T00:00:00Z",
+  "title": "Design System: myDryDrEaMlist",
+  "extensions": {
+    "colorMeta": {
+      "void":       { "role": "neutral",  "displayName": "Void",        "canonical": "oklch(0.145 0 0)", "tonalRamp": ["oklch(0.07 0 0)", "oklch(0.145 0 0)", "oklch(0.205 0 0)", "oklch(0.27 0 0)", "oklch(0.37 0 0)", "oklch(0.55 0 0)", "oklch(0.70 0 0)", "oklch(0.92 0 0)"] },
+      "surface":    { "role": "neutral",  "displayName": "Surface",      "canonical": "oklch(0.205 0 0)", "tonalRamp": ["oklch(0.07 0 0)", "oklch(0.145 0 0)", "oklch(0.205 0 0)", "oklch(0.27 0 0)", "oklch(0.37 0 0)", "oklch(0.55 0 0)", "oklch(0.70 0 0)", "oklch(0.92 0 0)"] },
+      "raised":     { "role": "neutral",  "displayName": "Raised",       "canonical": "oklch(0.27 0 0)",  "tonalRamp": ["oklch(0.07 0 0)", "oklch(0.145 0 0)", "oklch(0.205 0 0)", "oklch(0.27 0 0)", "oklch(0.37 0 0)", "oklch(0.55 0 0)", "oklch(0.70 0 0)", "oklch(0.92 0 0)"] },
+      "border":     { "role": "neutral",  "displayName": "Border",       "canonical": "oklch(0.37 0 0)",  "tonalRamp": ["oklch(0.07 0 0)", "oklch(0.145 0 0)", "oklch(0.205 0 0)", "oklch(0.27 0 0)", "oklch(0.37 0 0)", "oklch(0.55 0 0)", "oklch(0.70 0 0)", "oklch(0.92 0 0)"] },
+      "ink":        { "role": "neutral",  "displayName": "Ink",          "canonical": "oklch(0.967 0 0)", "tonalRamp": ["oklch(0.07 0 0)", "oklch(0.145 0 0)", "oklch(0.205 0 0)", "oklch(0.27 0 0)", "oklch(0.37 0 0)", "oklch(0.55 0 0)", "oklch(0.70 0 0)", "oklch(0.967 0 0)"] },
+      "ink-muted":  { "role": "neutral",  "displayName": "Ink Muted",    "canonical": "oklch(0.70 0 0)",  "tonalRamp": ["oklch(0.07 0 0)", "oklch(0.145 0 0)", "oklch(0.205 0 0)", "oklch(0.27 0 0)", "oklch(0.37 0 0)", "oklch(0.55 0 0)", "oklch(0.70 0 0)", "oklch(0.92 0 0)"] },
+      "ink-dim":    { "role": "neutral",  "displayName": "Ink Dim",      "canonical": "oklch(0.44 0 0)",  "tonalRamp": ["oklch(0.07 0 0)", "oklch(0.145 0 0)", "oklch(0.205 0 0)", "oklch(0.27 0 0)", "oklch(0.37 0 0)", "oklch(0.44 0 0)", "oklch(0.55 0 0)", "oklch(0.70 0 0)"] },
+      "lamp":       { "role": "primary",  "displayName": "The Lamp",     "canonical": "oklch(0.541 0.281 293)", "tonalRamp": ["oklch(0.15 0.06 293)", "oklch(0.25 0.13 293)", "oklch(0.35 0.19 293)", "oklch(0.45 0.25 293)", "oklch(0.541 0.281 293)", "oklch(0.62 0.24 293)", "oklch(0.72 0.19 293)", "oklch(0.88 0.08 293)"] },
+      "lamp-bright":{ "role": "primary",  "displayName": "Lamp Bright",  "canonical": "oklch(0.606 0.250 292)", "tonalRamp": ["oklch(0.15 0.06 293)", "oklch(0.25 0.13 293)", "oklch(0.35 0.19 293)", "oklch(0.45 0.25 293)", "oklch(0.541 0.281 293)", "oklch(0.606 0.250 292)", "oklch(0.72 0.19 293)", "oklch(0.88 0.08 293)"] },
+      "lamp-glow":  { "role": "primary",  "displayName": "Lamp Glow",    "canonical": "oklch(0.702 0.197 292)", "tonalRamp": ["oklch(0.15 0.06 293)", "oklch(0.25 0.13 293)", "oklch(0.35 0.19 293)", "oklch(0.45 0.25 293)", "oklch(0.541 0.281 293)", "oklch(0.62 0.24 293)", "oklch(0.702 0.197 292)", "oklch(0.88 0.08 293)"] },
+      "danger":     { "role": "tertiary", "displayName": "Danger",       "canonical": "oklch(0.577 0.245 27)", "tonalRamp": ["oklch(0.18 0.06 27)", "oklch(0.28 0.12 27)", "oklch(0.38 0.18 27)", "oklch(0.48 0.22 27)", "oklch(0.577 0.245 27)", "oklch(0.65 0.20 27)", "oklch(0.72 0.15 27)", "oklch(0.87 0.06 27)"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display",  "purpose": "App title only — 'myDryDrEaMlist' in page header. One instance per view." },
+      "title":   { "displayName": "Title",    "purpose": "Section group headings (Anime, Manga, etc.). Paired with the colored accent pill." },
+      "body":    { "displayName": "Body",     "purpose": "Form labels, modal text, error messages, inline UI prose." },
+      "label":   { "displayName": "Label",    "purpose": "Filter pill text, select options. Uppercase only for filter row labels." },
+      "micro":   { "displayName": "Micro",    "purpose": "Card title overlays and status labels at poster scale." },
+      "mono":    { "displayName": "Mono",     "purpose": "Progress counters — tabular-nums, Geist Mono. Never use Geist Sans for numbers in the bottom bar." }
+    },
+    "shadows": [
+      {
+        "name": "card-hover-lift",
+        "value": "0 25px 50px -12px oklch(0 0 0 / 60%)",
+        "purpose": "Applied on media card :hover only. Never at rest. Paired with -2px vertical translate."
+      },
+      {
+        "name": "modal-drop",
+        "value": "0 25px 50px -12px oklch(0 0 0 / 60%)",
+        "purpose": "Modal panel floating above the black/70 backdrop. The backdrop does more work than the shadow."
+      }
+    ],
+    "motion": [
+      { "name": "state-fast",   "value": "150ms ease-out", "purpose": "Button hover, chip active state, border color transitions." },
+      { "name": "state-medium", "value": "200ms ease-out", "purpose": "Card action button opacity reveal on hover." },
+      { "name": "state-slow",   "value": "300ms ease-out", "purpose": "Card border color and shadow transitions on hover." },
+      { "name": "poster-zoom",  "value": "500ms ease-out", "purpose": "Blurred fill layer scale on card group-hover (scale-110 → scale-125)." }
+    ],
+    "breakpoints": [
+      { "name": "sm",  "value": "640px",  "purpose": "Grid: 2 → 3 columns" },
+      { "name": "md",  "value": "768px",  "purpose": "Grid: 3 → 4 columns" },
+      { "name": "lg",  "value": "1024px", "purpose": "Grid: 4 → 5 columns" },
+      { "name": "xl",  "value": "1280px", "purpose": "Grid: 5 → 6 columns" },
+      { "name": "2xl", "value": "1536px", "purpose": "Max-width 7xl container cap (≈80rem)" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Violet CTA — the only primary action button in the system. Used for '+ Add' and form submits.",
+      "html": "<button class=\"ds-btn-primary\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"/><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"/></svg> Add</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 4px; background: oklch(0.541 0.281 293); color: oklch(0.985 0 0); border: none; border-radius: 0.375rem; padding: 6px 12px; font-family: Geist, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; line-height: 1; cursor: pointer; transition: background 150ms ease-out; } .ds-btn-primary:hover { background: oklch(0.606 0.250 292); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(0.606 0.250 292); outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Filter Chip — Inactive",
+      "kind": "chip",
+      "refersTo": "chip-filter",
+      "description": "URL-state-driven filter pill. Inactive state — used for unselected type, status, and year filters.",
+      "html": "<button class=\"ds-chip\">Anime</button>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; background: transparent; color: oklch(0.70 0 0); border: 1px solid oklch(0.37 0 0); border-radius: 9999px; padding: 2px 10px; font-family: Geist, system-ui, sans-serif; font-size: 0.75rem; font-weight: 400; line-height: 1; cursor: pointer; transition: border-color 150ms ease-out, color 150ms ease-out; } .ds-chip:hover { border-color: oklch(0.55 0 0); color: oklch(0.922 0 0); } .ds-chip:focus-visible { outline: 2px solid oklch(0.606 0.250 292); outline-offset: 2px; }"
+    },
+    {
+      "name": "Filter Chip — Active",
+      "kind": "chip",
+      "refersTo": "chip-filter-active",
+      "description": "URL-state-driven filter pill. Active state — selected type, status, or year filter.",
+      "html": "<button class=\"ds-chip-active\">Anime</button>",
+      "css": ".ds-chip-active { display: inline-flex; align-items: center; background: oklch(0.541 0.281 293); color: oklch(0.985 0 0); border: 1px solid oklch(0.541 0.281 293); border-radius: 9999px; padding: 2px 10px; font-family: Geist, system-ui, sans-serif; font-size: 0.75rem; font-weight: 500; line-height: 1; cursor: pointer; transition: background 150ms ease-out; } .ds-chip-active:hover { background: oklch(0.606 0.250 292); border-color: oklch(0.606 0.250 292); } .ds-chip-active:focus-visible { outline: 2px solid oklch(0.606 0.250 292); outline-offset: 2px; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Text input used in Add / Edit modals. Raised surface, violet focus ring.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Title\">",
+      "css": ".ds-input { display: block; width: 100%; background: oklch(0.27 0 0); border: 1px solid oklch(0.37 0 0); color: oklch(0.967 0 0); border-radius: 0.375rem; padding: 8px 12px; font-family: Geist, system-ui, sans-serif; font-size: 0.875rem; font-weight: 400; line-height: 1.5; outline: none; transition: box-shadow 150ms ease-out; box-sizing: border-box; } .ds-input::placeholder { color: oklch(0.44 0 0); } .ds-input:focus-visible { box-shadow: 0 0 0 2px oklch(0.606 0.250 292); }"
+    },
+    {
+      "name": "Media Card",
+      "kind": "card",
+      "refersTo": "card-media",
+      "description": "The signature component. 2:3 poster card with blurred fill, overlay gradient, and micro typography. The visual anchor of the system.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-poster\"><div class=\"ds-card-dot\" style=\"background:oklch(0.541 0.281 293);\"></div><div class=\"ds-card-gradient\"></div><div class=\"ds-card-overlay\"><p class=\"ds-card-title\">Frieren: Beyond Journey&#39;s End</p><span class=\"ds-card-status\">Watching</span></div></div><div class=\"ds-card-bar\"><div class=\"ds-card-progress\"><button class=\"ds-card-step\">+</button><span class=\"ds-card-count\">12</span></div><div class=\"ds-card-date\"><p class=\"ds-date-abs\">Jun 4, 2025</p><p class=\"ds-date-rel\">Today</p></div></div></div>",
+      "css": ".ds-card { display: flex; flex-direction: column; border-radius: 1rem; overflow: hidden; background: oklch(0.205 0 0); border: 1px solid oklch(0.27 0 0 / 60%); transition: border-color 300ms ease-out, box-shadow 300ms ease-out, transform 300ms ease-out; } .ds-card:hover { border-color: oklch(0.44 0 0); box-shadow: 0 25px 50px -12px oklch(0 0 0 / 60%); transform: translateY(-2px); } .ds-card-poster { position: relative; aspect-ratio: 2/3; background: linear-gradient(135deg, oklch(0.27 0 0), oklch(0.205 0 0)); overflow: hidden; } .ds-card-dot { position: absolute; top: 10px; left: 10px; width: 8px; height: 8px; border-radius: 9999px; box-shadow: 0 0 0 2px oklch(0 0 0 / 50%); z-index: 2; } .ds-card-gradient { position: absolute; inset: auto 0 0 0; height: 112px; background: linear-gradient(to top, oklch(0 0 0 / 95%), oklch(0 0 0 / 60%), transparent); pointer-events: none; z-index: 1; } .ds-card-overlay { position: absolute; inset: auto 0 0 0; padding: 10px; z-index: 2; pointer-events: none; } .ds-card-title { font-family: Geist, system-ui, sans-serif; font-size: 0.6875rem; font-weight: 600; color: oklch(1 0 0); line-height: 1.3; margin: 0 0 4px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } .ds-card-status { display: inline-block; font-family: Geist, system-ui, sans-serif; font-size: 0.5625rem; font-weight: 500; padding: 2px 6px; border-radius: 0.375rem; background: oklch(0 0 0 / 40%); color: oklch(0.702 0.197 292); } .ds-card-bar { padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; background: oklch(0.205 0 0); } .ds-card-progress { display: flex; align-items: center; gap: 4px; } .ds-card-step { width: 20px; height: 20px; font-size: 0.625rem; border-radius: 0.375rem; border: 1px solid oklch(0.37 0 0 / 60%); background: transparent; color: oklch(0.44 0 0); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 150ms, color 150ms; } .ds-card-step:hover { background: oklch(0.541 0.281 293); border-color: oklch(0.541 0.281 293); color: oklch(1 0 0); } .ds-card-count { font-family: Geist Mono, ui-monospace, monospace; font-size: 0.6875rem; font-weight: 600; color: oklch(0.922 0 0); min-width: 1ch; text-align: center; } .ds-card-date { text-align: right; flex-shrink: 0; } .ds-date-abs { font-family: Geist, system-ui, sans-serif; font-size: 0.625rem; color: oklch(0.70 0 0); line-height: 1; margin: 0; } .ds-date-rel { font-family: Geist, system-ui, sans-serif; font-size: 0.5625rem; color: oklch(0.44 0 0); line-height: 1; margin: 2px 0 0 0; }"
+    },
+    {
+      "name": "Section Group Header",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Separates content groups on the dashboard. Accent pill + label + count + divider line.",
+      "html": "<div class=\"ds-group-header\"><div class=\"ds-group-accent\" style=\"background:oklch(0.541 0.281 293);\"></div><h2 class=\"ds-group-label\">Anime</h2><span class=\"ds-group-count\">14</span><div class=\"ds-group-line\"></div></div>",
+      "css": ".ds-group-header { display: flex; align-items: center; gap: 12px; } .ds-group-accent { width: 4px; height: 20px; border-radius: 9999px; flex-shrink: 0; } .ds-group-label { font-family: Geist, system-ui, sans-serif; font-size: 1rem; font-weight: 600; color: oklch(0.922 0 0); margin: 0; line-height: 1.4; } .ds-group-count { font-family: Geist, system-ui, sans-serif; font-size: 0.875rem; font-weight: 400; color: oklch(0.44 0 0); } .ds-group-line { flex: 1; height: 1px; background: oklch(0.27 0 0); }"
+    },
+    {
+      "name": "Modal Panel",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Overlay modal used for Add / Edit entry. Black/70 backdrop-blur-sm + surface panel.",
+      "html": "<div class=\"ds-modal-wrap\"><div class=\"ds-modal-backdrop\"></div><div class=\"ds-modal-panel\"><div class=\"ds-modal-header\"><span class=\"ds-modal-title\">Add entry</span><button class=\"ds-modal-close\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"/><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"/></svg></button></div><p class=\"ds-modal-hint\">Title is required. Image URL and link are optional.</p></div></div>",
+      "css": ".ds-modal-wrap { position: relative; width: 100%; max-width: 28rem; } .ds-modal-backdrop { position: absolute; inset: -200px; background: oklch(0 0 0 / 70%); backdrop-filter: blur(4px); border-radius: 0; } .ds-modal-panel { position: relative; background: oklch(0.205 0 0); border: 1px solid oklch(0.37 0 0); border-radius: 0.75rem; padding: 20px; box-shadow: 0 25px 50px -12px oklch(0 0 0 / 60%); } .ds-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; } .ds-modal-title { font-family: Geist, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; color: oklch(0.922 0 0); } .ds-modal-close { width: 24px; height: 24px; background: transparent; border: none; cursor: pointer; color: oklch(0.44 0 0); display: flex; align-items: center; justify-content: center; transition: color 150ms; border-radius: 0.375rem; } .ds-modal-close:hover { color: oklch(0.922 0 0); } .ds-modal-hint { font-family: Geist, system-ui, sans-serif; font-size: 0.75rem; color: oklch(0.44 0 0); margin: 0; line-height: 1.5; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Archive at Midnight",
+    "overview": "This is a private library at 2am: dark, still, and full of cover art you collected deliberately. The interface is not chrome — it is a dark room that makes the posters glow. The void surface absorbs light. The lamp color is a single violet lamp in the corner. Every card is a title you chose.\n\nThe system rejects noise in every form. No social signals, no global rankings, no hero banners, no commercial carousels. Nothing reads as a streaming service selling you something or a community tracker where your taste is on display. It is a personal index — a notebook with images. The user is the only audience.\n\nAtmosphere here is structural, not decorative. The blurred poster-fill behind each card, the gradient overlay that brings titles forward, the lamp accent that appears only on active states — these are load-bearing decisions. If an element does not intensify the imagery or serve the task, it does not belong in this product.",
+    "keyCharacteristics": [
+      "Near-black depth: page bg at lightness 0.145, cards at 0.205 — genuine darkness, not dark gray",
+      "Single accent color: lamp (violet-600) used for primary CTAs, selected states, and focus rings only — rarity is the point",
+      "Content-forward: poster art covers the entire card face; UI chrome overlays, never sits adjacent",
+      "Micro typography on cards: 9–11px — compact, invisible until needed, never competing with imagery",
+      "Flat by default: tonal layering separates surfaces; shadows appear only as state responses"
+    ],
+    "rules": [
+      { "name": "The One Lamp Rule",        "body": "The violet accent appears on ≤3 elements on any given screen: the primary CTA, the active filter pill, and the focus ring. A fourth violet element means one of those three should not be violet.",                                                            "section": "colors" },
+      { "name": "The Rarity Rule",          "body": "Never tint hover states, idle borders, or card backgrounds toward violet. The lamp matters because it is the only chromatic element in the UI chrome. Category dots and status text are content signals, not brand signals.",               "section": "colors" },
+      { "name": "The Flat-by-Default Rule", "body": "Every surface is flat at rest. A card with a shadow at rest is trying to be more important than its content. Shadows respond to state; they do not establish hierarchy.",                                                                        "section": "elevation" },
+      { "name": "The Micro Ceiling Rule",   "body": "The absolute readable floor is 9px (0.5625rem), used only for purely secondary context (relative timestamps). Never use sub-9px for interactive or actionable text. Never use micro weight below 600 against a dark background — it disappears.", "section": "typography" }
+    ],
+    "dos": [
+      "Do use {colors.lamp} (violet-600) for primary actions, active filter pills, and focus rings only. Its scarcity makes it meaningful.",
+      "Do use tonal layering (void → surface → raised) to express depth at rest. Lightness steps do the work; shadows are reserved for state.",
+      "Do let poster art fill the entire card face. The blurred fill + contained main image + gradient overlay pattern is the system's signature — preserve it exactly.",
+      "Do keep interactive controls on cards hidden until hover (opacity-0 → opacity-100). The dashboard should look like a gallery at rest, not a control panel.",
+      "Do use object-contain for poster images — preserve the art's intended composition. Never object-cover or crop.",
+      "Do use Geist Mono and tabular-nums for progress counters — column stability matters as numbers change."
+    ],
+    "donts": [
+      "Don't use MAL / AniList patterns: no cluttered data tables, no forum-style layout, no visible community stats, no public-facing rating displays.",
+      "Don't use Letterboxd patterns: no review excerpts, no follow counts, no diary-style entry format, no social framing of any kind.",
+      "Don't use generic shadcn dark defaults as the identity. The shadcn CSS vars are the scaffold. If a component reads as 'could belong to any admin SaaS,' it needs a decision applied to it.",
+      "Don't use Netflix / streaming UI patterns: no autoplay indicators, no hero banners, no carousel arrows, no 'Continue Watching' metadata strips.",
+      "Don't add a second accent color to the UI chrome. Category dots and status text colors are content signals, not brand signals.",
+      "Don't apply shadows to surfaces at rest. Flat-by-Default is a load-bearing rule.",
+      "Don't use border-left greater than 1px as a colored stripe on cards or list items.",
+      "Don't scale up card micro-type (9–11px) to 'improve readability.' The fix is contrast or weight — not size."
+    ]
+  }
+}

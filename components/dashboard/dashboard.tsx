@@ -26,8 +26,14 @@ export async function Dashboard({
 
   if (error) {
     return (
-      <div className="text-sm text-red-400 px-4 py-3 rounded-lg bg-red-900/20 border border-red-800">
-        Failed to load list: {error.message}
+      <div className="text-sm text-red-400 px-4 py-3 rounded-lg bg-red-900/20 border border-red-800 flex items-center justify-between gap-4">
+        <span>Failed to load your list — check your connection and refresh.</span>
+        <button
+          onClick={() => window.location.reload()}
+          className="text-xs text-red-300 hover:text-red-100 border border-red-700 hover:border-red-500 rounded px-2 py-0.5 shrink-0 transition-colors"
+        >
+          Retry
+        </button>
       </div>
     )
   }

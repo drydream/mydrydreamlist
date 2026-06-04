@@ -116,8 +116,8 @@ export function MediaCard({
           {/* Type dot — top left */}
           <div className={`absolute top-2.5 left-2.5 w-2 h-2 rounded-full ${dotColor} ring-2 ring-black/50 shadow-lg`} />
 
-          {/* Action buttons — top right on hover */}
-          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {/* Action buttons — top right on hover (always visible on touch) */}
+          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-200">
             <button
               onClick={() => setEditing(true)}
               className="h-6 w-6 rounded-lg bg-black/70 hover:bg-black/90 backdrop-blur-sm flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
@@ -163,13 +163,13 @@ export function MediaCard({
             </span>
           </div>
 
-          {/* External link — bottom right on hover */}
+          {/* External link — bottom right on hover (always visible on touch) */}
           {item.url && (
             <a
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="absolute bottom-2 right-2 h-6 w-6 rounded-lg bg-black/60 hover:bg-black/90 backdrop-blur-sm flex items-center justify-center text-zinc-400 hover:text-white opacity-0 group-hover:opacity-100 transition-all"
+              className="absolute bottom-2 right-2 h-6 w-6 rounded-lg bg-black/60 hover:bg-black/90 backdrop-blur-sm flex items-center justify-center text-zinc-400 hover:text-white opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-all"
               title="Open link"
             >
               <ExternalLink className="h-3 w-3" />
@@ -180,20 +180,23 @@ export function MediaCard({
         {/* Bottom bar — progress + date */}
         <div className="px-2.5 py-2 flex items-center justify-between gap-2 bg-zinc-900">
           <div className="flex items-center gap-1">
-            {!atMin && (
-              <button
-                onClick={handleDecrement}
-                className="h-5 w-5 text-[10px] rounded-md border border-zinc-700/60 hover:bg-zinc-700 hover:border-zinc-600 text-zinc-500 hover:text-zinc-200 transition-colors flex items-center justify-center"
-              >
-                −
-              </button>
-            )}
+            <button
+              onClick={handleDecrement}
+              disabled={atMin}
+              className={`h-7 w-7 text-xs rounded-md border transition-colors flex items-center justify-center ${
+                atMin
+                  ? 'border-zinc-700/30 text-zinc-700 cursor-not-allowed'
+                  : 'border-zinc-700/60 hover:bg-zinc-700 hover:border-zinc-600 text-zinc-500 hover:text-zinc-200'
+              }`}
+            >
+              −
+            </button>
             <span className="text-[11px] text-zinc-300 tabular-nums font-semibold min-w-[1ch] text-center">
               {displayProgress}
             </span>
             <button
               onClick={handleIncrement}
-              className="h-5 w-5 text-[10px] rounded-md border border-zinc-700/60 hover:bg-violet-600 hover:border-violet-600 text-zinc-500 hover:text-white transition-colors flex items-center justify-center"
+              className="h-7 w-7 text-xs rounded-md border border-zinc-700/60 hover:bg-violet-600 hover:border-violet-600 text-zinc-500 hover:text-white transition-colors flex items-center justify-center"
             >
               +
             </button>
