@@ -11,7 +11,7 @@ import {
 import { COLOR_MAP, COLORS } from '@/lib/colors'
 
 type AddForm  = { kind: 'type' | 'status'; value: string; label: string; color: string; type_filter: string[] }
-type EditForm = { id: string; label: string; color: string; sort_order: number; type_filter: string[] }
+type EditForm = { id: string; kind: 'type' | 'status'; label: string; color: string; sort_order: number; type_filter: string[] }
 
 export function CategoryManager({
   initialCategories,
@@ -32,6 +32,10 @@ export function CategoryManager({
   function handleAdd(e: React.FormEvent) {
     e.preventDefault()
     if (!add || !add.value.trim() || !add.label.trim()) return
+    if (add.kind === 'status' && add.type_filter.length === 0) {
+      setErr('Assign at least one type under "Applies to".')
+      return
+    }
     const base = add.kind === 'type' ? types : statuses
     setErr(null)
     trans(async () => {
@@ -54,6 +58,10 @@ export function CategoryManager({
   function handleEdit(e: React.FormEvent) {
     e.preventDefault()
     if (!edit) return
+    if (edit.kind === 'status' && edit.type_filter.length === 0) {
+      setErr('Assign at least one type under "Applies to".')
+      return
+    }
     setErr(null)
     trans(async () => {
       try {
@@ -169,7 +177,7 @@ export function CategoryManager({
                 <div className="flex gap-1">
                   <button
                     onClick={() => {
-                      setEdit({ id: cat.id, label: cat.label, color: cat.color, sort_order: cat.sort_order, type_filter: cat.type_filter })
+                      setEdit({ id: cat.id, kind: cat.kind, label: cat.label, color: cat.color, sort_order: cat.sort_order, type_filter: cat.type_filter })
                       setAdd(null)
                       setDel(null)
                     }}
@@ -293,15 +301,17 @@ function TypeFilterPicker({
     )
   }
 
+  const allSelected = types.length > 0 && types.every(t => value.includes(t.value))
+
   return (
     <div className="space-y-1.5">
-      <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Applies to</p>
+      <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Applies to <span className="text-zinc-600 normal-case">(required)</span></p>
       <div className="flex gap-1.5 flex-wrap">
         <button
           type="button"
-          onClick={() => onChange([])}
+          onClick={() => onChange(allSelected ? [] : types.map(t => t.value))}
           className={`px-2.5 py-0.5 text-xs rounded-full border transition-colors ${
-            value.length === 0
+            allSelected
               ? 'bg-violet-600 border-violet-600 text-white'
               : 'border-zinc-700 text-zinc-400 hover:border-zinc-500'
           }`}

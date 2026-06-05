@@ -25,12 +25,13 @@ export function AddItemForm({
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [open])
+  const initialType = types[0]?.value ?? ''
   const [form, setForm] = useState({
     title:     '',
     image_url: '',
     url:       '',
-    type:      types[0]?.value    ?? '',
-    status:    statuses[0]?.value ?? '',
+    type:      initialType,
+    status:    statuses.find(s => s.type_filter?.includes(initialType))?.value ?? '',
   })
 
   function set(key: string, value: string) {
@@ -38,21 +39,20 @@ export function AddItemForm({
   }
 
   function handleTypeChange(newType: string) {
-    const applicable = statuses.filter(s => !s.type_filter?.length || s.type_filter.includes(newType))
+    const applicable = statuses.filter(s => s.type_filter?.includes(newType))
     setForm(f => ({
       ...f,
       type:   newType,
-      status: applicable.find(s => s.value === f.status) ? f.status : (applicable[0]?.value ?? f.status),
+      status: applicable.find(s => s.value === f.status) ? f.status : (applicable[0]?.value ?? ''),
     }))
   }
 
-  const applicableStatuses = statuses.filter(
-    s => !s.type_filter?.length || s.type_filter.includes(form.type)
-  )
+  const applicableStatuses = statuses.filter(s => s.type_filter?.includes(form.type))
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.title.trim()) return
+    if (!applicableStatuses.some(s => s.value === form.status)) return
     startTransition(async () => {
       await addItem({
         title:     form.title.trim(),
@@ -152,7 +152,7 @@ export function AddItemForm({
 
             <Button
               type="submit"
-              disabled={isPending || !form.title.trim()}
+              disabled={isPending || !form.title.trim() || applicableStatuses.length === 0}
               className="w-full bg-violet-600 hover:bg-violet-500 text-white"
             >
               {isPending ? 'Adding…' : 'Add to list'}
