@@ -70,18 +70,13 @@ export function RealtimeDashboard({
     items.filter(i => i.updated_at).map(i => new Date(i.updated_at!).getFullYear())
   )].sort((a, b) => b - a)
 
-  // Status options: show if used by items of the selected type OR explicitly configured for it
-  const scopedItems    = filters.type ? items.filter(i => i.type === filters.type) : items
-  const usedStatuses   = new Set(scopedItems.map(i => i.status).filter(Boolean))
-
+  // Status options scoped to the active type — only statuses assigned to it (strict).
+  // No type selected → show every status.
   const typeOptions   = typeCategories
     .filter(c => availableTypes.includes(c.value))
     .map(c => ({ value: c.value, label: c.label }))
   const statusOptions = statusCategories
-    .filter(c => {
-      if (!filters.type) return usedStatuses.has(c.value)
-      return usedStatuses.has(c.value) || (c.type_filter?.includes(filters.type) ?? false)
-    })
+    .filter(c => !filters.type || c.type_filter.includes(filters.type))
     .map(c => ({ value: c.value, label: c.label }))
 
   // Apply URL filters

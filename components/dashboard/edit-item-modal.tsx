@@ -44,7 +44,7 @@ export function EditItemModal({
   }
 
   function handleTypeChange(newType: string) {
-    const applicable = statuses.filter(s => !s.type_filter?.length || s.type_filter.includes(newType))
+    const applicable = statuses.filter(s => s.type_filter?.includes(newType))
     setForm(f => ({
       ...f,
       type:   newType,
@@ -52,13 +52,12 @@ export function EditItemModal({
     }))
   }
 
-  const applicableStatuses = statuses.filter(
-    s => !s.type_filter?.length || s.type_filter.includes(form.type)
-  )
+  const applicableStatuses = statuses.filter(s => s.type_filter?.includes(form.type))
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.title.trim()) return
+    if (!applicableStatuses.some(s => s.value === form.status)) return
     startTransition(async () => {
       await updateItem(item.id, {
         title:     form.title.trim(),
@@ -162,7 +161,7 @@ export function EditItemModal({
 
         <Button
           type="submit"
-          disabled={isPending || !form.title.trim()}
+          disabled={isPending || !form.title.trim() || !applicableStatuses.some(s => s.value === form.status)}
           className="w-full bg-violet-600 hover:bg-violet-500 text-white"
         >
           {isPending ? 'Saving…' : 'Save changes'}

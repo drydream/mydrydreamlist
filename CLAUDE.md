@@ -47,7 +47,7 @@ components/
 ## Database Tables
 - **`items`** — `id, title, image_url, url, type(text), status(text), progress(numeric), total(numeric), updated_at`
 - **`categories`** — `id, kind('type'|'status'), value(slug), label, color(key), sort_order, type_filter(text[]), created_at`
-  - `type_filter = []` means applies to all types; non-empty scopes status to specific type values
+  - `type_filter` is the set of type values a status applies to (**strict** — empty means the status applies to *no* type and is required non-empty for statuses)
   - `color` is a key into `COLOR_MAP` in `lib/colors.ts` (never store raw Tailwind class)
 
 ## Data Flow
@@ -69,7 +69,7 @@ app/home/page.tsx (server)
 - **No `revalidatePath` on progress updates** — iOS Safari ITP blocks cross-site cookies inside HA iframe; optimistic UI handles it client-side (see Architecture trade-offs below)
 - **Category fallback** — `getCategories()` returns hardcoded defaults if `categories` table missing (never throws)
 - **Color classes** — All Tailwind color classes must exist statically in `lib/colors.ts`; DB stores color key (`'violet'`), not class string
-- **`type_filter`** on statuses — filter statuses in forms with: `statuses.filter(s => !s.type_filter?.length || s.type_filter.includes(selectedType))`
+- **`type_filter`** on statuses — **strict scoping**: a status applies to a type *only* if `type_filter.includes(type)`. There is no "empty = all" escape hatch. Filter statuses in forms with: `statuses.filter(s => s.type_filter?.includes(selectedType))`; filter pills with `!filters.type || c.type_filter.includes(filters.type)`. Admin requires ≥1 type per status (the "All" button sets every type value explicitly). Consequence: a status scoped to "all" via explicit list will *not* auto-include a type added later — re-assign it in Admin.
 - **Progress** — stored as NUMERIC(8,2), supports decimals (e.g. game version 0.7)
 - **Total field** — removed from UI; column still exists in DB but not used
 - **Dark theme** — `className="dark"` is set on `<html>` in `app/layout.tsx` so shadcn CSS vars resolve to dark-mode values; the UI also hardcodes zinc utility classes directly — both must stay in sync when adding shadcn components
