@@ -66,10 +66,14 @@ export function RealtimeDashboard({
 
   // Derive available filter options (only values present in items)
   const availableTypes    = [...new Set(items.map(i => i.type))]
-  const availableStatuses = [...new Set(items.map(i => i.status))]
   const availableYears    = [...new Set(
     items.filter(i => i.updated_at).map(i => new Date(i.updated_at!).getFullYear())
   )].sort((a, b) => b - a)
+
+  // Status options scoped to the active type — only statuses that actually appear
+  // on items of the selected type (or all items when no type is selected)
+  const scopedItems       = filters.type ? items.filter(i => i.type === filters.type) : items
+  const availableStatuses = [...new Set(scopedItems.map(i => i.status))]
 
   const typeOptions   = typeCategories
     .filter(c => availableTypes.includes(c.value))
