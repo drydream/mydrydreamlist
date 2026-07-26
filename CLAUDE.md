@@ -7,7 +7,7 @@ Always commit and push to a **new branch** (e.g. `feat/admin-categories`, `fix/i
 - **Framework:** Next.js 16 App Router, React 19, TypeScript
 - **Styling:** Tailwind CSS v4, shadcn/base-ui components
 - **DB:** SQLite via Node's built-in `node:sqlite` (`DatabaseSync`), single file at `data/list.db` (path from `DB_PATH` env var). No dependency — Node 24+ required.
-- **Auth:** None — single-user app, LAN-only. Never expose this app outside the LAN (no tunnels/reverse proxies to the public internet).
+- **Auth:** None — single-user app, LAN + Tailscale tailnet only. Never expose this app to the public internet (no port forwarding, no public reverse proxy/cloudflared tunnel) — there is no auth to protect it.
 - **Deploy:** Self-hosted Docker container on NAS (`docker-compose.yml`), `next.config.ts` sets `output: 'standalone'` and `X-Frame-Options: ALLOWALL` for HA iframe embedding.
 
 ## Routes
@@ -84,10 +84,13 @@ app/home/page.tsx (server)
 - Container lives at `/volume1/docker/myprivatelist` on the NAS, port `3210`, data volume mounted at `./data:/data`.
 - Redeploy: `git pull && docker compose up -d --build` from that directory.
 - The SQLite file (`data/list.db`) **is** the app's entire data store — back it up.
+- Access URLs:
+  - On the home LAN: `http://192.168.1.170:3210/home`
+  - Anywhere with Tailscale on (home or away): `http://drydream-rella:3210/home` (MagicDNS) or `http://100.103.51.128:3210/home` (tailnet IP) — same NAS, same data, just a different reachable address. Requires the viewing device to have Tailscale connected.
 
 ## HA Wall Panel Standards
 
-The app runs as a Home Assistant iframe on a wall-mounted touch tablet (LAN-only, pointed at `http://<nas-lan-ip>:3210/home`). Pointer input is coarse, arm's-length, and one-handed. Apply these constraints to any new interactive element:
+The app runs as a Home Assistant iframe on a wall-mounted touch tablet, pointed at `http://192.168.1.170:3210/home` (LAN). The same HA "My List" sidebar panel (`dashboards/mylist/mylist.yaml` on the HA config, YAML-mode dashboard) uses the Tailscale hostname instead (`http://drydream-rella:3210/`) so it also works when viewing HA from outside the LAN. Pointer input is coarse, arm's-length, and one-handed. Apply these constraints to any new interactive element:
 
 - **Touch targets** — High-frequency actions must be at least `h-7 w-7` (28×28px). The progress `+` / `−` buttons in the card bottom bar use this size. Lower-frequency actions (modal close `×`, filter pills) may be smaller but must still be tappable without zoom.
 
