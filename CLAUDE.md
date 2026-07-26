@@ -86,11 +86,11 @@ app/home/page.tsx (server)
 - The SQLite file (`data/list.db`) **is** the app's entire data store — back it up.
 - Access URLs:
   - On the home LAN: `http://192.168.1.170:3210/home`
-  - Anywhere with Tailscale on (home or away): `http://drydream-rella:3210/home` (MagicDNS) or `http://100.103.51.128:3210/home` (tailnet IP) — same NAS, same data, just a different reachable address. Requires the viewing device to have Tailscale connected.
+  - Anywhere with Tailscale on (home or away): `https://drydream-rella.tail287113.ts.net/home` — proxied via `tailscale serve` (`serve --bg --https=443 3210`, configured directly on the NAS, not in this repo) to a real Tailscale-issued HTTPS cert. **Must be HTTPS, not the bare `http://drydream-rella:3210` form** — anything embedding this URL over HTTPS (e.g. the HA sidebar iframe) will silently fail to load if given a plain-HTTP URL due to mixed-content blocking. Requires the viewing device to have Tailscale connected.
 
 ## HA Wall Panel Standards
 
-The app runs as a Home Assistant iframe on a wall-mounted touch tablet, pointed at `http://192.168.1.170:3210/home` (LAN). The same HA "My List" sidebar panel (`dashboards/mylist/mylist.yaml` on the HA config, YAML-mode dashboard) uses the Tailscale hostname instead (`http://drydream-rella:3210/`) so it also works when viewing HA from outside the LAN. Pointer input is coarse, arm's-length, and one-handed. Apply these constraints to any new interactive element:
+The app runs as a Home Assistant iframe on a wall-mounted touch tablet, pointed at `http://192.168.1.170:3210/home` (LAN). The same HA "My List" sidebar panel (`dashboards/mylist/mylist.yaml` on the HA config, YAML-mode dashboard) uses `https://drydream-rella.tail287113.ts.net/` instead so it also works when viewing HA from outside the LAN — must be HTTPS since HA itself is viewed over HTTPS and a plain-HTTP iframe gets mixed-content blocked. Pointer input is coarse, arm's-length, and one-handed. Apply these constraints to any new interactive element:
 
 - **Touch targets** — High-frequency actions must be at least `h-7 w-7` (28×28px). The progress `+` / `−` buttons in the card bottom bar use this size. Lower-frequency actions (modal close `×`, filter pills) may be smaller but must still be tappable without zoom.
 
