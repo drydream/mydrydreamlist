@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useEffect, Suspense } from 'react'
+import { useRouter } from 'next/navigation'
 import { MediaCard, type Item } from './media-card'
 import { FilterBar } from './filter-bar'
 import { COLOR_MAP } from '@/lib/colors'
@@ -25,33 +25,18 @@ export function RealtimeDashboard({
   typeCategories?:   Category[]
   statusCategories?: Category[]
 }) {
-  const [items, setItems] = useState(initialItems)
-  const [realtimeLost, setRealtimeLost] = useState(false)
+  const items = initialItems
+  const router = useRouter()
 
   useEffect(() => {
-    const supabase = createClient()
-    const channel = supabase
-      .channel('items-realtime')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'items' },
-        (payload: { new: Record<string, unknown> }) => {
-          setItems(prev =>
-            prev.map(item =>
-              item.id === payload.new.id
-                ? { ...item, ...(payload.new as Partial<Item>) }
-                : item
-            )
-          )
-        }
-      )
-      .subscribe((status: string) => {
-        if (status === 'SUBSCRIBED')                                              setRealtimeLost(false)
-        if (status === 'CHANNEL_ERROR' || status === 'CLOSED' || status === 'TIMED_OUT') setRealtimeLost(true)
-      })
-
-    return () => { supabase.removeChannel(channel) }
-  }, [])
+    const tick = () => document.visibilityState === 'visible' && router.refresh()
+    const id = setInterval(tick, 30_000)
+    document.addEventListener('visibilitychange', tick)
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', tick)
+    }
+  }, [router])
 
   // Build color lookup maps from categories
   const typeColorMap: Record<string, string> = Object.fromEntries(
@@ -122,12 +107,6 @@ export function RealtimeDashboard({
 
   return (
     <div className="space-y-8">
-      {realtimeLost && (
-        <div className="flex items-center gap-1.5 text-xs text-amber-500/70">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-500/70 animate-pulse shrink-0" />
-          Live updates paused — refresh to reconnect.
-        </div>
-      )}
       <Suspense>
         <FilterBar
           typeOptions={typeOptions}

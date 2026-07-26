@@ -1,0 +1,6 @@
+services:
+  myprivatelist:
+    build: .
+    ports: ["3210:3000"]
+    volumes: ["./data:/data"]
+    restart: unless-stopped
