@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect, useTransition, useRef, useCallback } from 'react'
 import { Pencil, Trash2, ExternalLink, Check, X } from 'lucide-react'
 import { AnimatePresence } from 'motion/react'
-import { updateProgress, deleteItem } from '@/lib/actions/items'
+import { deleteItem } from '@/lib/actions/items'
 import { EditItemModal } from './edit-item-modal'
 
 export interface Item {
@@ -56,25 +56,58 @@ export function MediaCard({
   const [displayProgress, setDisplayProgress] = useState(item.progress)
   const [bumpKey, setBumpKey] = useState(0)
 
+  // Unsent progress value. Taps are debounced into one request; server actions
+  // run one-at-a-time per client, so per-tap actions queued up and were lost
+  // when the app was closed before the queue drained.
+  const pending = useRef<number | null>(null)
+  const timer   = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  const flush = useCallback(() => {
+    clearTimeout(timer.current)
+    if (pending.current === null) return
+    const progress = pending.current
+    pending.current = null
+    fetch('/api/progress', {
+      method:    'POST',
+      headers:   { 'Content-Type': 'application/json' },
+      body:      JSON.stringify({ id: item.id, progress }),
+      keepalive: true,
+    })
+  }, [item.id])
+
   useEffect(() => {
-    setDisplayProgress(item.progress)
+    const onHide = () => document.visibilityState === 'hidden' && flush()
+    document.addEventListener('visibilitychange', onHide)
+    window.addEventListener('pagehide', flush)
+    return () => {
+      document.removeEventListener('visibilitychange', onHide)
+      window.removeEventListener('pagehide', flush)
+      flush()
+    }
+  }, [flush])
+
+  useEffect(() => {
+    // Don't let a background refresh snap the counter back over an unsent value
+    if (pending.current === null) setDisplayProgress(item.progress)
   }, [item.progress])
 
   const atMin = displayProgress <= 0
 
-  function handleIncrement() {
-    const next = displayProgress + 1
+  function setProgress(next: number) {
     setDisplayProgress(next)
     setBumpKey(k => k + 1)
-    updateProgress(item.id, next)
+    pending.current = next
+    clearTimeout(timer.current)
+    timer.current = setTimeout(flush, 400)
+  }
+
+  function handleIncrement() {
+    setProgress(displayProgress + 1)
   }
 
   function handleDecrement() {
     if (atMin) return
-    const next = displayProgress - 1
-    setDisplayProgress(next)
-    setBumpKey(k => k + 1)
-    updateProgress(item.id, next)
+    setProgress(displayProgress - 1)
   }
 
   function handleDelete() {

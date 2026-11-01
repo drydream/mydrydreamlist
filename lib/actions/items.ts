@@ -51,15 +51,6 @@ export async function updateItem(id: string, data: {
   revalidatePath('/home')
 }
 
-export async function updateProgress(id: string, progress: number) {
-  getDb()
-    .prepare('UPDATE items SET progress = ?, updated_at = ? WHERE id = ?')
-    .run(progress, new Date().toISOString(), id)
-  // No revalidatePath: rapid +/- taps would otherwise trigger a burst of RSC
-  // refetches whose out-of-order responses can snap the optimistic counter
-  // backward mid-tap. The 30s poll in realtime-dashboard.tsx covers cross-device sync.
-}
-
 export async function deleteItem(id: string) {
   getDb().prepare('DELETE FROM items WHERE id = ?').run(id)
   revalidatePath('/home')
